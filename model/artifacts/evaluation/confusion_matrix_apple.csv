@@ -1,0 +1,5 @@
+actual\predicted,Apple Scab,Black Rot,Cedar Apple Rust,Healthy
+Apple Scab,49,0,0,2
+Black Rot,0,50,0,0
+Cedar Apple Rust,0,0,44,0
+Healthy,0,0,0,51

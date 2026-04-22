@@ -1,0 +1,4 @@
+actual\predicted,Early Blight,Healthy,Late Blight
+Early Blight,49,0,0
+Healthy,0,46,0
+Late Blight,2,0,47

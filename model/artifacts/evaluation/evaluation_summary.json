@@ -1,0 +1,472 @@
+{
+  "evaluated_crops": [
+    "apple",
+    "bell_pepper",
+    "cherry",
+    "corn_maize",
+    "grape",
+    "peach",
+    "potato",
+    "strawberry",
+    "tomato"
+  ],
+  "reports": {
+    "apple": {
+      "crop": "Apple",
+      "crop_slug": "apple",
+      "model_path": "model\\saved_model\\plant_disease_apple.h5",
+      "samples": 196,
+      "accuracy": 0.9897959183673469,
+      "class_names": [
+        "Apple Scab",
+        "Black Rot",
+        "Cedar Apple Rust",
+        "Healthy"
+      ],
+      "class_metrics": [
+        {
+          "class": "Apple Scab",
+          "precision": 1.0,
+          "recall": 0.9607843137254902,
+          "f1_score": 0.98,
+          "support": 51,
+          "tp": 49,
+          "fp": 0,
+          "fn": 2,
+          "tn": 145
+        },
+        {
+          "class": "Black Rot",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 50,
+          "tp": 50,
+          "fp": 0,
+          "fn": 0,
+          "tn": 146
+        },
+        {
+          "class": "Cedar Apple Rust",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 44,
+          "tp": 44,
+          "fp": 0,
+          "fn": 0,
+          "tn": 152
+        },
+        {
+          "class": "Healthy",
+          "precision": 0.9622641509433962,
+          "recall": 1.0,
+          "f1_score": 0.9807692307692307,
+          "support": 51,
+          "tp": 51,
+          "fp": 2,
+          "fn": 0,
+          "tn": 143
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_apple.csv"
+    },
+    "bell_pepper": {
+      "crop": "Bell Pepper",
+      "crop_slug": "bell_pepper",
+      "model_path": "model\\saved_model\\plant_disease_bell_pepper.h5",
+      "samples": 98,
+      "accuracy": 1.0,
+      "class_names": [
+        "Bacterial Spot",
+        "Healthy"
+      ],
+      "class_metrics": [
+        {
+          "class": "Bacterial Spot",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 48,
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "tn": 50
+        },
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 50,
+          "tp": 50,
+          "fp": 0,
+          "fn": 0,
+          "tn": 48
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_bell_pepper.csv"
+    },
+    "cherry": {
+      "crop": "Cherry",
+      "crop_slug": "cherry",
+      "model_path": "model\\saved_model\\plant_disease_cherry.h5",
+      "samples": 89,
+      "accuracy": 1.0,
+      "class_names": [
+        "Healthy",
+        "Powdery Mildew"
+      ],
+      "class_metrics": [
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "tn": 43
+        },
+        {
+          "class": "Powdery Mildew",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 43,
+          "tp": 43,
+          "fp": 0,
+          "fn": 0,
+          "tn": 46
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_cherry.csv"
+    },
+    "corn_maize": {
+      "crop": "Corn (Maize)",
+      "crop_slug": "corn_maize",
+      "model_path": "model\\saved_model\\plant_disease_corn_maize.h5",
+      "samples": 188,
+      "accuracy": 0.9627659574468085,
+      "class_names": [
+        "Cercospora Leaf Spot",
+        "Common Rust",
+        "Healthy",
+        "Northern Leaf Blight"
+      ],
+      "class_metrics": [
+        {
+          "class": "Cercospora Leaf Spot",
+          "precision": 0.9761904761904762,
+          "recall": 0.9111111111111111,
+          "f1_score": 0.9425287356321839,
+          "support": 45,
+          "tp": 41,
+          "fp": 1,
+          "fn": 4,
+          "tn": 142
+        },
+        {
+          "class": "Common Rust",
+          "precision": 0.9795918367346939,
+          "recall": 1.0,
+          "f1_score": 0.9896907216494846,
+          "support": 48,
+          "tp": 48,
+          "fp": 1,
+          "fn": 0,
+          "tn": 139
+        },
+        {
+          "class": "Healthy",
+          "precision": 0.9791666666666666,
+          "recall": 1.0,
+          "f1_score": 0.9894736842105264,
+          "support": 47,
+          "tp": 47,
+          "fp": 1,
+          "fn": 0,
+          "tn": 140
+        },
+        {
+          "class": "Northern Leaf Blight",
+          "precision": 0.9183673469387755,
+          "recall": 0.9375,
+          "f1_score": 0.9278350515463918,
+          "support": 48,
+          "tp": 45,
+          "fp": 4,
+          "fn": 3,
+          "tn": 136
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_corn_maize.csv"
+    },
+    "grape": {
+      "crop": "Grape",
+      "crop_slug": "grape",
+      "model_path": "model\\saved_model\\plant_disease_grape.h5",
+      "samples": 182,
+      "accuracy": 0.9945054945054945,
+      "class_names": [
+        "Black Rot",
+        "Esca (Black Measles)",
+        "Healthy",
+        "Leaf Blight"
+      ],
+      "class_metrics": [
+        {
+          "class": "Black Rot",
+          "precision": 1.0,
+          "recall": 0.9791666666666666,
+          "f1_score": 0.9894736842105264,
+          "support": 48,
+          "tp": 47,
+          "fp": 0,
+          "fn": 1,
+          "tn": 134
+        },
+        {
+          "class": "Esca (Black Measles)",
+          "precision": 0.9795918367346939,
+          "recall": 1.0,
+          "f1_score": 0.9896907216494846,
+          "support": 48,
+          "tp": 48,
+          "fp": 1,
+          "fn": 0,
+          "tn": 133
+        },
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 43,
+          "tp": 43,
+          "fp": 0,
+          "fn": 0,
+          "tn": 139
+        },
+        {
+          "class": "Leaf Blight",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 43,
+          "tp": 43,
+          "fp": 0,
+          "fn": 0,
+          "tn": 139
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_grape.csv"
+    },
+    "peach": {
+      "crop": "Peach",
+      "crop_slug": "peach",
+      "model_path": "model\\saved_model\\plant_disease_peach.h5",
+      "samples": 90,
+      "accuracy": 1.0,
+      "class_names": [
+        "Bacterial Spot",
+        "Healthy"
+      ],
+      "class_metrics": [
+        {
+          "class": "Bacterial Spot",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "tn": 44
+        },
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 44,
+          "tp": 44,
+          "fp": 0,
+          "fn": 0,
+          "tn": 46
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_peach.csv"
+    },
+    "potato": {
+      "crop": "Potato",
+      "crop_slug": "potato",
+      "model_path": "model\\saved_model\\plant_disease_potato.h5",
+      "samples": 144,
+      "accuracy": 0.9861111111111112,
+      "class_names": [
+        "Early Blight",
+        "Healthy",
+        "Late Blight"
+      ],
+      "class_metrics": [
+        {
+          "class": "Early Blight",
+          "precision": 0.9607843137254902,
+          "recall": 1.0,
+          "f1_score": 0.98,
+          "support": 49,
+          "tp": 49,
+          "fp": 2,
+          "fn": 0,
+          "tn": 93
+        },
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "tn": 98
+        },
+        {
+          "class": "Late Blight",
+          "precision": 1.0,
+          "recall": 0.9591836734693877,
+          "f1_score": 0.9791666666666666,
+          "support": 49,
+          "tp": 47,
+          "fp": 0,
+          "fn": 2,
+          "tn": 95
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_potato.csv"
+    },
+    "strawberry": {
+      "crop": "Strawberry",
+      "crop_slug": "strawberry",
+      "model_path": "model\\saved_model\\plant_disease_strawberry.h5",
+      "samples": 91,
+      "accuracy": 1.0,
+      "class_names": [
+        "Healthy",
+        "Leaf Scorch"
+      ],
+      "class_metrics": [
+        {
+          "class": "Healthy",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 46,
+          "tp": 46,
+          "fp": 0,
+          "fn": 0,
+          "tn": 45
+        },
+        {
+          "class": "Leaf Scorch",
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1_score": 1.0,
+          "support": 45,
+          "tp": 45,
+          "fp": 0,
+          "fn": 0,
+          "tn": 46
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_strawberry.csv"
+    },
+    "tomato": {
+      "crop": "Tomato",
+      "crop_slug": "tomato",
+      "model_path": "model\\saved_model\\plant_disease_tomato.h5",
+      "samples": 280,
+      "accuracy": 0.8607142857142858,
+      "class_names": [
+        "Bacterial Spot",
+        "Early Blight",
+        "Healthy",
+        "Late Blight",
+        "Septoria Leaf Spot",
+        "Yellow Leaf Curl Virus"
+      ],
+      "class_metrics": [
+        {
+          "class": "Bacterial Spot",
+          "precision": 1.0,
+          "recall": 0.8372093023255814,
+          "f1_score": 0.9113924050632911,
+          "support": 43,
+          "tp": 36,
+          "fp": 0,
+          "fn": 7,
+          "tn": 237
+        },
+        {
+          "class": "Early Blight",
+          "precision": 0.8461538461538461,
+          "recall": 0.6875,
+          "f1_score": 0.7586206896551724,
+          "support": 48,
+          "tp": 33,
+          "fp": 6,
+          "fn": 15,
+          "tn": 226
+        },
+        {
+          "class": "Healthy",
+          "precision": 0.8727272727272727,
+          "recall": 0.9795918367346939,
+          "f1_score": 0.923076923076923,
+          "support": 49,
+          "tp": 48,
+          "fp": 7,
+          "fn": 1,
+          "tn": 224
+        },
+        {
+          "class": "Late Blight",
+          "precision": 0.8085106382978723,
+          "recall": 0.8085106382978723,
+          "f1_score": 0.8085106382978723,
+          "support": 47,
+          "tp": 38,
+          "fp": 9,
+          "fn": 9,
+          "tn": 224
+        },
+        {
+          "class": "Septoria Leaf Spot",
+          "precision": 0.8604651162790697,
+          "recall": 0.8409090909090909,
+          "f1_score": 0.8505747126436781,
+          "support": 44,
+          "tp": 37,
+          "fp": 6,
+          "fn": 7,
+          "tn": 230
+        },
+        {
+          "class": "Yellow Leaf Curl Virus",
+          "precision": 0.8166666666666667,
+          "recall": 1.0,
+          "f1_score": 0.8990825688073394,
+          "support": 49,
+          "tp": 49,
+          "fp": 11,
+          "fn": 0,
+          "tn": 220
+        }
+      ],
+      "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_tomato.csv"
+    }
+  },
+  "failures": {}
+}

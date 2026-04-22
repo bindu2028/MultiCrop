@@ -1,0 +1,36 @@
+{
+  "crop": "Cherry",
+  "crop_slug": "cherry",
+  "model_path": "model\\saved_model\\plant_disease_cherry.h5",
+  "samples": 89,
+  "accuracy": 1.0,
+  "class_names": [
+    "Healthy",
+    "Powdery Mildew"
+  ],
+  "class_metrics": [
+    {
+      "class": "Healthy",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 46,
+      "tp": 46,
+      "fp": 0,
+      "fn": 0,
+      "tn": 43
+    },
+    {
+      "class": "Powdery Mildew",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 43,
+      "tp": 43,
+      "fp": 0,
+      "fn": 0,
+      "tn": 46
+    }
+  ],
+  "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_cherry.csv"
+}

@@ -1,0 +1,5 @@
+actual\predicted,Cercospora Leaf Spot,Common Rust,Healthy,Northern Leaf Blight
+Cercospora Leaf Spot,41,0,0,4
+Common Rust,0,48,0,0
+Healthy,0,0,47,0
+Northern Leaf Blight,1,1,1,45

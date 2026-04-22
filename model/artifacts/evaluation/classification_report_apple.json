@@ -1,0 +1,60 @@
+{
+  "crop": "Apple",
+  "crop_slug": "apple",
+  "model_path": "model\\saved_model\\plant_disease_apple.h5",
+  "samples": 196,
+  "accuracy": 0.9897959183673469,
+  "class_names": [
+    "Apple Scab",
+    "Black Rot",
+    "Cedar Apple Rust",
+    "Healthy"
+  ],
+  "class_metrics": [
+    {
+      "class": "Apple Scab",
+      "precision": 1.0,
+      "recall": 0.9607843137254902,
+      "f1_score": 0.98,
+      "support": 51,
+      "tp": 49,
+      "fp": 0,
+      "fn": 2,
+      "tn": 145
+    },
+    {
+      "class": "Black Rot",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 50,
+      "tp": 50,
+      "fp": 0,
+      "fn": 0,
+      "tn": 146
+    },
+    {
+      "class": "Cedar Apple Rust",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 44,
+      "tp": 44,
+      "fp": 0,
+      "fn": 0,
+      "tn": 152
+    },
+    {
+      "class": "Healthy",
+      "precision": 0.9622641509433962,
+      "recall": 1.0,
+      "f1_score": 0.9807692307692307,
+      "support": 51,
+      "tp": 51,
+      "fp": 2,
+      "fn": 0,
+      "tn": 143
+    }
+  ],
+  "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_apple.csv"
+}

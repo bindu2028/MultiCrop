@@ -1,0 +1,36 @@
+{
+  "crop": "Bell Pepper",
+  "crop_slug": "bell_pepper",
+  "model_path": "model\\saved_model\\plant_disease_bell_pepper.h5",
+  "samples": 98,
+  "accuracy": 1.0,
+  "class_names": [
+    "Bacterial Spot",
+    "Healthy"
+  ],
+  "class_metrics": [
+    {
+      "class": "Bacterial Spot",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 48,
+      "tp": 48,
+      "fp": 0,
+      "fn": 0,
+      "tn": 50
+    },
+    {
+      "class": "Healthy",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 50,
+      "tp": 50,
+      "fp": 0,
+      "fn": 0,
+      "tn": 48
+    }
+  ],
+  "confusion_matrix_csv": "model\\artifacts\\evaluation\\confusion_matrix_bell_pepper.csv"
+}

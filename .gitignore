@@ -1,0 +1,8 @@
+dataset/
+*.jpg
+*.png
+*.jpeg
+*.h5
+*.pt
+*.pth
+__pycache__/

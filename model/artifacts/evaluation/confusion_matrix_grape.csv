@@ -1,0 +1,5 @@
+actual\predicted,Black Rot,Esca (Black Measles),Healthy,Leaf Blight
+Black Rot,47,1,0,0
+Esca (Black Measles),0,48,0,0
+Healthy,0,0,43,0
+Leaf Blight,0,0,0,43
