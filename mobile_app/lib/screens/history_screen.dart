@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       future: _historyFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
+          return const _HistorySkeleton();
         }
 
         final history = snapshot.data ?? const [];
@@ -181,4 +181,50 @@ class _ConfidenceBadge {
     required this.background,
     required this.foreground,
   });
+}
+
+class _HistorySkeleton extends StatelessWidget {
+  const _HistorySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: const [
+            Expanded(child: _HistorySkeletonBlock(height: 22, radius: 8)),
+            SizedBox(width: 70),
+          ],
+        ),
+        const SizedBox(height: 12),
+        const _HistorySkeletonBlock(height: 34, radius: 999),
+        const SizedBox(height: 12),
+        Expanded(
+          child: ListView.separated(
+            itemCount: 6,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (_, __) => const _HistorySkeletonBlock(height: 84, radius: 16),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistorySkeletonBlock extends StatelessWidget {
+  final double height;
+  final double radius;
+
+  const _HistorySkeletonBlock({required this.height, required this.radius});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE9EFE6),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
 }

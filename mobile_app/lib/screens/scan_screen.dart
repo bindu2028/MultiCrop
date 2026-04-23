@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -179,6 +180,18 @@ class _ScanScreenState extends State<ScanScreen> {
       return;
     }
 
+    final qualityIssue = await _validateImageQuality(_imageBytes!);
+    if (qualityIssue != null) {
+      if (!mounted) {
+        return;
+      }
+      final proceed = await _showQualityWarningDialog(qualityIssue);
+      if (!proceed) {
+        setState(() => _message = 'Capture a clearer leaf image and try again.');
+        return;
+      }
+    }
+
     setState(() {
       _predicting = true;
       _message = 'Analyzing image...';
@@ -235,6 +248,56 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  Future<String?> _validateImageQuality(Uint8List bytes) async {
+    if (bytes.lengthInBytes < 40000) {
+      return 'Image quality seems too low. Try capturing a sharper photo with better lighting.';
+    }
+
+    try {
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final width = frame.image.width;
+      final height = frame.image.height;
+
+      if (width < 500 || height < 500) {
+        return 'The image resolution is low. Please capture a closer and clearer leaf image.';
+      }
+
+      final ratio = width / height;
+      if (ratio > 2.2 || ratio < 0.45) {
+        return 'Framing looks unusual. Center a single leaf and avoid extreme zoom/crop.';
+      }
+    } catch (_) {
+      return 'Could not read the image properly. Please select or capture the photo again.';
+    }
+
+    return null;
+  }
+
+  Future<bool> _showQualityWarningDialog(String issue) async {
+    final choice = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Retake Recommended'),
+          content: Text(issue),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Retake'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Analyze Anyway'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return choice ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -280,7 +343,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     border: Border.all(color: const Color(0xFFDDE8DB)),
                   ),
                   child: _imageBytes == null
-                      ? const Center(child: Text('Image preview area'))
+                      ? const _ScanPreviewGuide()
                       : Image.memory(_imageBytes!, fit: BoxFit.cover, width: double.infinity),
                 ),
               ),
@@ -368,6 +431,103 @@ class _ScanTipRow extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScanPreviewGuide extends StatelessWidget {
+  const _ScanPreviewGuide();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFFF7FBF5), Color(0xFFEEF6EC)],
+            ),
+          ),
+        ),
+        Center(
+          child: Container(
+            width: 220,
+            height: 220,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFBFD6BF), width: 2),
+              color: Colors.white.withValues(alpha: 0.36),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.filter_center_focus_rounded, size: 54, color: Color(0xFF4D8754)),
+                SizedBox(height: 10),
+                Text(
+                  'Center one leaf',
+                  style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF3B6640)),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Keep background simple',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF5F7363)),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Positioned(
+          left: 14,
+          right: 14,
+          bottom: 12,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _GuideChip(icon: Icons.wb_sunny_outlined, label: 'Good Light'),
+              _GuideChip(icon: Icons.blur_on_outlined, label: 'No Blur'),
+              _GuideChip(icon: Icons.eco_outlined, label: 'Single Leaf'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GuideChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _GuideChip({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFD5E3D5)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF4B8A54)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF47644B)),
           ),
         ],
       ),
