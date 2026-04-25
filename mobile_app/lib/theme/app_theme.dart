@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData light() {
@@ -14,6 +15,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      textTheme: GoogleFonts.interTextTheme(),
       scaffoldBackgroundColor: const Color(0xFFF7F8F2),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFFF7F8F2),
@@ -43,8 +45,12 @@ class AppTheme {
         margin: EdgeInsets.zero,
         color: Colors.white,
         surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 8,
+        shadowColor: const Color(0x11000000),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: Color(0xFFF0F4EF)),
+        ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFF0F4ED),

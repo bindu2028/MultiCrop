@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../services/notification_service.dart';
+import 'diary_list_screen.dart';
+import '../widgets/fade_slide.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -48,92 +51,98 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _ProfileTopCard(
-                userName: _displayName,
-                userEmail: _displayEmail,
-                onTap: _openEditProfile,
+              FadeSlide(
+                delay: const Duration(milliseconds: 0),
+                child: _ProfileTopCard(
+                  userName: _displayName,
+                  userEmail: _displayEmail,
+                  onTap: _openEditProfile,
+                ),
               ),
               const SizedBox(height: 12),
-              _MenuGroup(
-                items: [
-                  _MenuItemData(
-                    icon: Icons.person_outline,
-                    title: 'My profile',
-                    onTap: _openEditProfile,
-                  ),
-                  _MenuItemData(
-                    icon: Icons.document_scanner_outlined,
-                    title: 'Scan plant now',
-                    onTap: widget.onOpenScan,
-                  ),
-                  _MenuItemData(
-                    icon: Icons.history_outlined,
-                    title: 'History',
-                    onTap: () => widget.onNavigateToTab(1),
-                  ),
-                  _MenuItemData(
-                    icon: Icons.menu_book_outlined,
-                    title: 'Growth diary',
-                    onTap: widget.onOpenDiary,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _MenuGroup(
-                items: [
-                  _MenuItemData(
-                    icon: Icons.notifications_none_rounded,
-                    title: 'Message notifications',
-                    onTap: _showNotificationsSheet,
-                  ),
-                  _MenuItemData(
-                    icon: Icons.tune_rounded,
-                    title: 'App settings',
-                    onTap: _showSettingsSheet,
-                  ),
-                  _MenuItemData(
-                    icon: Icons.lock_outline_rounded,
-                    title: 'Reset password',
-                    onTap: () => _showToast('Password reset flow can be connected here.'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _MenuGroup(
-                items: [
-                  _MenuItemData(
-                    icon: Icons.support_agent_outlined,
-                    title: 'Contact us',
-                    onTap: _showSupportDialog,
-                  ),
-                  _MenuItemData(
-                    icon: Icons.feedback_outlined,
-                    title: 'Give us feedback',
-                    onTap: () => _showToast('Feedback flow can be connected next.'),
-                  ),
-                  _MenuItemData(
-                    icon: Icons.info_outline,
-                    title: 'About PlantLens',
-                    onTap: () => showAboutDialog(
-                      context: context,
-                      applicationName: 'PlantLens',
-                      applicationVersion: '1.0.0',
-                      applicationLegalese: 'Real-time plant disease detection app',
+              FadeSlide(
+                delay: const Duration(milliseconds: 100),
+                child: _MenuGroup(
+                  items: [
+                    _MenuItemData(
+                      icon: Icons.person_outline,
+                      title: 'My profile',
+                      onTap: _openEditProfile,
                     ),
-                  ),
-                  _MenuItemData(
-                    icon: Icons.logout_rounded,
-                    title: 'Sign out',
-                    onTap: widget.onLogout,
-                  ),
-                ],
+                    _MenuItemData(
+                      icon: Icons.menu_book_outlined,
+                      title: 'Growth diary',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const DiaryListScreen()));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              FadeSlide(
+                delay: const Duration(milliseconds: 200),
+                child: _MenuGroup(
+                  items: [
+                    _MenuItemData(
+                      icon: Icons.notifications_none_rounded,
+                      title: 'Message notifications',
+                      onTap: _showNotificationsSheet,
+                    ),
+                    _MenuItemData(
+                      icon: Icons.tune_rounded,
+                      title: 'App settings',
+                      onTap: _showSettingsSheet,
+                    ),
+                    _MenuItemData(
+                      icon: Icons.lock_outline_rounded,
+                      title: 'Reset password',
+                      onTap: _showResetPasswordDialog,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              FadeSlide(
+                delay: const Duration(milliseconds: 300),
+                child: _MenuGroup(
+                  items: [
+                    _MenuItemData(
+                      icon: Icons.support_agent_outlined,
+                      title: 'Contact us',
+                      onTap: _showSupportDialog,
+                    ),
+                    _MenuItemData(
+                      icon: Icons.feedback_outlined,
+                      title: 'Give us feedback',
+                      onTap: _showFeedbackDialog,
+                    ),
+                    _MenuItemData(
+                      icon: Icons.info_outline,
+                      title: 'About PlantLens',
+                      onTap: () => showAboutDialog(
+                        context: context,
+                        applicationName: 'PlantLens',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese: 'Real-time plant disease detection app',
+                      ),
+                    ),
+                    _MenuItemData(
+                      icon: Icons.logout_rounded,
+                      title: 'Sign out',
+                      onTap: widget.onLogout,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 18),
-              Container(
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    const Text(
+              FadeSlide(
+                delay: const Duration(milliseconds: 400),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      const Text(
                       'Want better scan quality?',
                       style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF253627)),
                     ),
@@ -144,7 +153,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -251,6 +261,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _showLanguageSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + MediaQuery.of(context).padding.bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Select Language', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 16),
+              ListTile(
+                title: const Text('English (US)'),
+                onTap: () {
+                  context.setLocale(const Locale('en'));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Hindi (India) / हिंदी'),
+                onTap: () {
+                  context.setLocale(const Locale('hi'));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Spanish / Español'),
+                onTap: () {
+                  context.setLocale(const Locale('es'));
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showSettingsSheet() async {
     await showModalBottomSheet<void>(
       context: context,
@@ -274,6 +328,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   _openEditProfile();
+                },
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.language_rounded),
+                title: const Text('Language'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLanguageSheet();
                 },
               ),
               ListTile(
@@ -321,6 +384,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _showResetPasswordDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset password'),
+        content: const Text('A password reset link will be sent to your email. Do you want to proceed?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showToast('Reset link sent to $_displayEmail');
+            },
+            child: const Text('Send Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showFeedbackDialog() async {
+    final feedbackController = TextEditingController();
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Feedback'),
+        content: TextField(
+          controller: feedbackController,
+          maxLines: 4,
+          decoration: InputDecoration(
+            hintText: 'Tell us how we can improve...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showToast('Thank you for your feedback!');
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showToast(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
@@ -351,62 +464,77 @@ class _ProfileTopCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(22),
+      color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(28),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: const Color(0xFFE5E8E7)),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+            ),
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+            image: const DecorationImage(
+              image: NetworkImage('https://www.transparenttextures.com/patterns/cubes.png'),
+              opacity: 0.1,
+              fit: BoxFit.cover,
+            ),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFFF56C5C),
-                child: Text(
-                  _initials(userName),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 38,
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFF2E7D32)),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      userEmail,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF6C7271)),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ],
-                ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.workspace_premium_rounded, color: Color(0xFFFFD54F), size: 18),
+                        SizedBox(width: 6),
+                        Text('Elite', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFF353838)),
+              const SizedBox(height: 24),
+              Text(
+                userName,
+                style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                userEmail,
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 15, fontWeight: FontWeight.w500),
+              ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  static String _initials(String value) {
-    final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
-    if (parts.isEmpty) {
-      return 'U';
-    }
-    if (parts.length == 1) {
-      return parts.first[0].toUpperCase();
-    }
-    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 }
 
@@ -421,7 +549,15 @@ class _MenuGroup extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE5E8E7)),
+        border: Border.all(color: const Color(0xFFF0F4EF)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 16,
+            spreadRadius: 2,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [

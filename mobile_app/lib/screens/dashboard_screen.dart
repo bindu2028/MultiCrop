@@ -1,7 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import '../models/scan_history_item.dart';
 import '../services/history_service.dart';
+import 'crop_calendar_screen.dart';
+import 'radar_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -25,15 +29,15 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   late final AnimationController _cardsAnimationController;
 
   final List<_PlantCardItem> _modelCrops = const [
-    _PlantCardItem('Apple', '4 disease classes', [Color(0xFF78B256), Color(0xFF3D7135)], 'apple', 'assets/images/crops/apple.jpg'),
-    _PlantCardItem('Bell Pepper', '2 disease classes', [Color(0xFF63B45E), Color(0xFF377F4A)], 'bell_pepper', 'assets/images/crops/bell_pepper.jpg'),
-    _PlantCardItem('Cherry', '2 disease classes', [Color(0xFF80B96C), Color(0xFF4B7D3B)], 'cherry', 'assets/images/crops/cherry.jpg'),
-    _PlantCardItem('Corn / Maize', '4 disease classes', [Color(0xFF85C161), Color(0xFF4D8D37)], 'corn_maize', 'assets/images/crops/corn_maize.jpg'),
-    _PlantCardItem('Grape', '4 disease classes', [Color(0xFF6DAA75), Color(0xFF356947)], 'grape', 'assets/images/crops/grape.jpg'),
-    _PlantCardItem('Peach', '2 disease classes', [Color(0xFF7EB65A), Color(0xFF4C7D37)], 'peach', 'assets/images/crops/peach.jpg'),
-    _PlantCardItem('Potato', '3 disease classes', [Color(0xFF93B963), Color(0xFF5D8138)], 'potato', 'assets/images/crops/potato.jpg'),
-    _PlantCardItem('Strawberry', '2 disease classes', [Color(0xFF71B864), Color(0xFF3C7E43)], 'strawberry', 'assets/images/crops/strawberry.jpg'),
-    _PlantCardItem('Tomato', '6 disease classes', [Color(0xFF66B85C), Color(0xFF2E8040)], 'tomato', 'assets/images/crops/tomato.jpg'),
+    _PlantCardItem('Apple', [Color(0xFF78B256), Color(0xFF3D7135)], 'apple', 'assets/images/crops/apple.png'),
+    _PlantCardItem('Bell Pepper', [Color(0xFF63B45E), Color(0xFF377F4A)], 'bell_pepper', 'assets/images/crops/bell_pepper.png'),
+    _PlantCardItem('Cherry', [Color(0xFF80B96C), Color(0xFF4B7D3B)], 'cherry', 'assets/images/crops/cherry.png'),
+    _PlantCardItem('Corn / Maize', [Color(0xFF85C161), Color(0xFF4D8D37)], 'corn_maize', 'assets/images/crops/corn_maize.png'),
+    _PlantCardItem('Grape', [Color(0xFF6DAA75), Color(0xFF356947)], 'grape', 'assets/images/crops/grape.png'),
+    _PlantCardItem('Peach', [Color(0xFF7EB65A), Color(0xFF4C7D37)], 'peach', 'assets/images/crops/peach.png'),
+    _PlantCardItem('Potato', [Color(0xFF93B963), Color(0xFF5D8138)], 'potato', 'assets/images/crops/potato.png'),
+    _PlantCardItem('Strawberry', [Color(0xFF71B864), Color(0xFF3C7E43)], 'strawberry', 'assets/images/crops/strawberry.png'),
+    _PlantCardItem('Tomato', [Color(0xFF66B85C), Color(0xFF2E8040)], 'tomato', 'assets/images/crops/tomato.png'),
   ];
 
   @override
@@ -83,6 +87,14 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   latestDisease: latest?.disease,
                 ),
                 const SizedBox(height: 18),
+                _QuickToolsCard(
+                  onCalendar: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(builder: (_) => const CropCalendarScreen()),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
                 _SectionHeader(
                   title: 'Model Crops',
                   actionLabel: 'Show More',
@@ -97,7 +109,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 0.92,
+                    childAspectRatio: 0.80,
                   ),
                   itemBuilder: (context, index) {
                     final item = _modelCrops[index];
@@ -127,13 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     );
                   },
                 ),
-                const SizedBox(height: 18),
-                _QuickToolsCard(
-                  onIdentify: widget.onScanRequested,
-                  onDiagnose: widget.onScanRequested,
-                  onHistory: () => widget.onNavigateToTab(2),
-                ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -155,7 +161,6 @@ class _ExploreHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -165,47 +170,59 @@ class _ExploreHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFD7E8D3)),
         boxShadow: const [
-          BoxShadow(color: Color(0x0C000000), blurRadius: 18, offset: Offset(0, 8)),
+          BoxShadow(color: Color(0x0A000000), blurRadius: 18, offset: Offset(0, 8)),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: const Color(0xFF66B051),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(Icons.spa_outlined, color: Colors.white, size: 30),
+          Positioned(
+            right: -24,
+            top: -24,
+            child: Icon(Icons.eco_rounded, size: 140, color: const Color(0xFFD3E7CE).withValues(alpha: 0.5)),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Explore',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF37673B)),
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF66B051),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Icon(Icons.spa_outlined, color: Colors.white, size: 30),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Wishing you a day full of green vibes!',
-                  style: TextStyle(color: Color(0xFF5B6D5D), fontWeight: FontWeight.w600),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Plant AI',
+                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF37673B)),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Wishing you a day full of green vibes!',
+                        style: TextStyle(color: Color(0xFF5B6D5D), fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        latestDisease == null
+                            ? 'Tap a crop card or the scan button to inspect a plant.'
+                            : 'Latest result for $userName: $latestDisease',
+                        style: const TextStyle(color: Color(0xFF748275), fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  latestDisease == null
-                      ? 'Tap a crop card or the scan button to inspect a plant.'
-                      : 'Latest result for $userName: $latestDisease',
-                  style: const TextStyle(color: Color(0xFF748275), fontSize: 12),
-                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.workspace_premium_rounded, color: Color(0xFFD6A51B), size: 28),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.workspace_premium_rounded, color: Color(0xFFD6A51B), size: 28),
         ],
       ),
     );
@@ -290,7 +307,8 @@ class _ModelCropCard extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Color(0x1F000000), Color(0x8C000000)],
+                      colors: [Colors.transparent, Colors.black87],
+                      stops: [0.4, 1.0],
                     ),
                   ),
                 ),
@@ -305,22 +323,25 @@ class _ModelCropCard extends StatelessWidget {
                       item.title,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18, height: 1.05),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item.subtitle,
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontWeight: FontWeight.w600),
-                    ),
+
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.bottomRight,
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(8),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1.0),
+                            ),
+                            child: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                          ),
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 18),
                       ),
                     ),
                   ],
@@ -334,49 +355,145 @@ class _ModelCropCard extends StatelessWidget {
   }
 }
 
-class _QuickToolsCard extends StatelessWidget {
-  final void Function([String? crop]) onIdentify;
-  final void Function([String? crop]) onDiagnose;
-  final VoidCallback onHistory;
 
-  const _QuickToolsCard({
-    required this.onIdentify,
-    required this.onDiagnose,
-    required this.onHistory,
-  });
+class _QuickToolsCard extends StatelessWidget {
+  final VoidCallback onCalendar;
+
+  const _QuickToolsCard({required this.onCalendar});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onCalendar,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE3E8E0)),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(color: Color(0x264CAF50), blurRadius: 16, offset: Offset(0, 6)),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -20,
+                bottom: -20,
+                child: Icon(Icons.calendar_month_rounded, size: 130, color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.event_note_rounded, color: Colors.white, size: 30),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Crop Calendar',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Season-wise sowing & harvesting tips',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 18),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Column(
-        children: [
-          _ToolRow(
-            icon: Icons.photo_camera_outlined,
-            title: 'Identify',
-            subtitle: 'Recognize a plant',
-            onTap: onIdentify,
+    );
+  }
+}
+
+class _OutbreakRadarCard extends StatelessWidget {
+  final VoidCallback onRadar;
+
+  const _OutbreakRadarCard({required this.onRadar});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onRadar,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1B2F20),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(color: Color(0x33000000), blurRadius: 16, offset: Offset(0, 6)),
+            ],
+            image: const DecorationImage(
+              image: NetworkImage('https://www.transparenttextures.com/patterns/stardust.png'), // Subtle texture
+              opacity: 0.1,
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(height: 10),
-          _ToolRow(
-            icon: Icons.health_and_safety_outlined,
-            title: 'Diagnose',
-            subtitle: 'Check plant health',
-            onTap: onDiagnose,
+          child: Row(
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(27),
+                  border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.5)),
+                ),
+                child: const Icon(Icons.radar_rounded, color: Colors.greenAccent, size: 28),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Outbreak Radar',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18),
+                        ),
+                        SizedBox(width: 6),
+                        Icon(Icons.circle, color: Colors.redAccent, size: 8),
+                      ],
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Live community pathogen threats',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 18),
+            ],
           ),
-          const SizedBox(height: 10),
-          _ToolRow(
-            icon: Icons.history_outlined,
-            title: 'Recent scans',
-            subtitle: 'Review saved results',
-            onTap: onHistory,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -505,10 +622,9 @@ class _SkeletonBlock extends StatelessWidget {
 
 class _PlantCardItem {
   final String title;
-  final String subtitle;
   final List<Color> gradient;
   final String crop;
   final String assetPath;
 
-  const _PlantCardItem(this.title, this.subtitle, this.gradient, this.crop, this.assetPath);
+  const _PlantCardItem(this.title, this.gradient, this.crop, this.assetPath);
 }

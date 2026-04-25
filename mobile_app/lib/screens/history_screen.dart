@@ -101,6 +101,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: RefreshIndicator(
                 onRefresh: _refresh,
                 child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 16),
                   itemCount: filteredHistory.length,
                   itemBuilder: (context, index) {
                     final item = filteredHistory[index];

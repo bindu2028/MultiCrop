@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/prediction_response.dart';
+import 'disease_info_screen.dart';
+import 'chat_screen.dart';
+import 'disease_simulator_screen.dart';
+import '../widgets/fade_slide.dart';
 
 class ResultScreen extends StatefulWidget {
   final PredictionResponse result;
@@ -19,7 +23,7 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   void initState() {
     super.initState();
-    _treatmentSteps = _buildTreatmentSteps(widget.result.remedy);
+    _treatmentSteps = _buildTreatmentSteps(widget.result);
   }
 
   @override
@@ -34,9 +38,11 @@ class _ResultScreenState extends State<ResultScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          FadeSlide(
+            delay: const Duration(milliseconds: 0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -45,6 +51,67 @@ class _ResultScreenState extends State<ResultScreen> {
                   Text(
                     result.disease,
                     style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF7EC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFD7E8D3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.info_outline, size: 18, color: Color(0xFF467247)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                result.diseaseExplanation,
+                                style: const TextStyle(
+                                  color: Color(0xFF456447),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Text(
+                              'Category:',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF467247),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getCategoryColor(result.diseaseType).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: _getCategoryColor(result.diseaseType).withValues(alpha: 0.3)),
+                              ),
+                              child: Text(
+                                result.diseaseType.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: _getCategoryColor(result.diseaseType),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -73,9 +140,75 @@ class _ResultScreenState extends State<ResultScreen> {
                     color: badge.progress,
                   ),
                   const SizedBox(height: 14),
-                  const Text('Remedy', style: TextStyle(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 6),
-                  Text(result.remedy),
+                  const Text('Remedy Summary', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 8),
+                  ...result.remedy.split(RegExp(r'[.;]\s?')).map((point) {
+                    final trimmed = point.trim();
+                    if (trimmed.isEmpty || trimmed.length < 3) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 6),
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF467247),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              trimmed,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                height: 1.4,
+                                color: Color(0xFF2E3D2E),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  if (result.drugCompounds.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text('Natural Drug Compounds', style: TextStyle(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: result.drugCompounds.map((compound) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0F4EF),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFE0E5DF)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.medication_outlined, size: 14, color: Color(0xFF467247)),
+                              const SizedBox(width: 6),
+                              Text(
+                                compound,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF324D36),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                   if (result.isUncertain) ...[
                     const SizedBox(height: 10),
                     const Text(
@@ -87,10 +220,56 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
           ),
+          ),
           const SizedBox(height: 14),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          FadeSlide(
+            delay: const Duration(milliseconds: 150),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Treatment Plan', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 10),
+                  _RemedySectionTile(
+                    icon: Icons.bolt_rounded,
+                    title: 'Immediate Action',
+                    content: result.remedySections.immediateAction,
+                    fallback: 'Act quickly to isolate affected leaves and prevent spread.',
+                  ),
+                  const SizedBox(height: 10),
+                  _RemedySectionTile(
+                    icon: Icons.shield_moon_outlined,
+                    title: 'Spray Plan',
+                    content: result.remedySections.sprayPlan,
+                    fallback: 'Follow label-safe disease spray guidance at regular intervals.',
+                  ),
+                  const SizedBox(height: 10),
+                  _RemedySectionTile(
+                    icon: Icons.health_and_safety_outlined,
+                    title: 'Prevention',
+                    content: result.remedySections.prevention,
+                    fallback: 'Improve airflow, hygiene, and watering practice to avoid recurrence.',
+                  ),
+                  const SizedBox(height: 10),
+                  _RemedySectionTile(
+                    icon: Icons.track_changes_outlined,
+                    title: 'Monitoring',
+                    content: result.remedySections.monitoring,
+                    fallback: 'Re-scan in a few days and compare symptom progression.',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ),
+          const SizedBox(height: 14),
+          FadeSlide(
+            delay: const Duration(milliseconds: 300),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -110,16 +289,51 @@ class _ResultScreenState extends State<ResultScreen> {
                         icon: const Icon(Icons.camera_alt_outlined),
                         label: const Text('Retake'),
                       ),
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => DiseaseInfoScreen(diseaseName: result.disease),
+                          ),
+                        ),
+                        icon: const Icon(Icons.info_outline_rounded),
+                        label: const Text('Disease Info'),
+                      ),
+                      FilledButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => ChatScreen(crop: result.crop, disease: result.disease),
+                          ),
+                        ),
+                        icon: const Icon(Icons.smart_toy_outlined),
+                        label: const Text('Ask AI'),
+                        style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1C7C44), foregroundColor: Colors.white),
+                      ),
+                      FilledButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (_) => DiseaseSimulatorScreen(diseaseName: result.disease),
+                          ),
+                        ),
+                        icon: const Icon(Icons.fast_forward_rounded),
+                        label: const Text('Simulate Progression'),
+                        style: FilledButton.styleFrom(backgroundColor: const Color(0xFFB71C1C), foregroundColor: Colors.white),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
           ),
+          ),
           const SizedBox(height: 14),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          FadeSlide(
+            delay: const Duration(milliseconds: 450),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -184,6 +398,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 ],
               ),
             ),
+          ),
           ),
           if (showRetakeSuggestion) ...[
             const SizedBox(height: 14),
@@ -256,7 +471,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Future<void> _copySummary() async {
     final result = widget.result;
     final confidence = (result.confidence * 100).clamp(0, 100).toStringAsFixed(1);
-    final summary = 'Crop: ${result.crop} | Diagnosis: ${result.disease} | Confidence: $confidence% | Remedy: ${result.remedy}';
+    final summary = 'Crop: ${result.crop} | Diagnosis: ${result.disease} (${result.diseaseType}) | Confidence: $confidence% | Remedy: ${result.remedy} | Compounds: ${result.drugCompounds.join(', ')}';
     await Clipboard.setData(ClipboardData(text: summary));
 
     if (!mounted) {
@@ -268,8 +483,19 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  List<String> _buildTreatmentSteps(String remedy) {
-    final normalized = remedy.replaceAll('\n', '. ');
+  List<String> _buildTreatmentSteps(PredictionResponse result) {
+    final structured = <String>[
+      result.remedySections.immediateAction,
+      result.remedySections.sprayPlan,
+      result.remedySections.prevention,
+      result.remedySections.monitoring,
+    ].where((step) => step.trim().isNotEmpty).toList();
+
+    if (structured.isNotEmpty) {
+      return structured;
+    }
+
+    final normalized = result.remedy.replaceAll('\n', '. ');
     final parts = normalized
         .split(RegExp(r'[.;]'))
         .map((item) => item.trim())
@@ -307,6 +533,22 @@ class _ResultScreenState extends State<ResultScreen> {
       progress: Color(0xFFB42318),
     );
   }
+
+  Color _getCategoryColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'bacterial':
+        return const Color(0xFFE53935);
+      case 'fungal':
+        return const Color(0xFFFB8C00);
+      case 'pest':
+      case 'pests':
+        return const Color(0xFF43A047);
+      case 'virus':
+        return const Color(0xFF8E24AA);
+      default:
+        return const Color(0xFF546E7A);
+    }
+  }
 }
 
 class _ConfidenceBadge {
@@ -321,4 +563,56 @@ class _ConfidenceBadge {
     required this.foreground,
     required this.progress,
   });
+}
+
+class _RemedySectionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String content;
+  final String fallback;
+
+  const _RemedySectionTile({
+    required this.icon,
+    required this.title,
+    required this.content,
+    required this.fallback,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = content.trim().isEmpty ? fallback : content;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7FAF6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE3ECE0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: const Color(0xFF67B15A).withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 17, color: const Color(0xFF3F8649)),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 2),
+                Text(text, style: const TextStyle(color: Color(0xFF4E6352))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

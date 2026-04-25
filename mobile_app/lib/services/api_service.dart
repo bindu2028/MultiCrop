@@ -25,8 +25,8 @@ class ApiService {
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      // Android emulator loopback to host machine.
-      return 'http://10.0.2.2:5000';
+      // Real device: use the PC's Wi-Fi IP since ADB reverse might disconnect natively
+      return 'http://10.77.248.173:5000';
     }
 
     return 'http://127.0.0.1:5000';

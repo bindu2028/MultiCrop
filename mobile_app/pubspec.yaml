@@ -38,6 +38,10 @@ dependencies:
   http_parser: ^4.1.2
   image_picker: ^1.1.2
   shared_preferences: ^2.3.2
+  google_fonts: ^8.0.2
+  easy_localization: ^3.0.8
+  google_generative_ai: ^0.4.7
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +65,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - .env
     - assets/images/crops/
+    - assets/translations/
+    - assets/images/simulations/tomato_late_blight/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

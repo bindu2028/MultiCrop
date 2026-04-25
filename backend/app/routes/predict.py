@@ -3,7 +3,13 @@ from pathlib import Path
 from flask import Blueprint, jsonify, request
 
 from app.services.model_service import available_crops, predict_image
-from app.services.remedy_service import get_remedy
+from app.services.remedy_service import (
+    get_disease_explanation,
+    get_remedy,
+    get_remedy_sections,
+    get_disease_type,
+    get_drug_compounds,
+)
 from app.config import Config
 from app.utils.image_utils import is_probable_leaf_image, preprocess_image_bytes
 
@@ -62,12 +68,21 @@ def predict():
     try:
         image_array = preprocess_image_bytes(image_bytes)
         disease, confidence, probabilities, selected_crop = predict_image(image_array, crop=crop)
+        disease_explanation = get_disease_explanation(disease)
         remedy = get_remedy(disease)
+        remedy_sections = get_remedy_sections(disease)
+        disease_type = get_disease_type(disease)
+        drug_compounds = get_drug_compounds(selected_crop)
+
         return jsonify({
             "disease": disease,
+            "disease_explanation": disease_explanation,
             "confidence": confidence,
             "probabilities": probabilities,
             "remedy": remedy,
+            "remedy_sections": remedy_sections,
+            "disease_type": disease_type,
+            "drug_compounds": drug_compounds,
             "crop": selected_crop,
             "is_uncertain": disease == "Uncertain",
         })
