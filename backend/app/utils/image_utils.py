@@ -87,8 +87,9 @@ def is_probable_leaf_image(image_bytes: bytes) -> tuple[bool, float]:
     grayscale = (0.299 * r) + (0.587 * g) + (0.114 * b)
     texture_std = float(np.std(grayscale) / 255.0)
 
-    # Weighted score tuned to reject common non-leaf photos on phone camera.
-    score = (0.60 * exg_ratio) + (0.25 * sat_ratio) + (0.15 * texture_std)
-    # Tighten thresholds: require higher green content and score
-    is_leaf_like = score >= 0.15 and exg_ratio >= 0.06
+    # Broad thresholds: any image with some texture and saturation is accepted.
+    # Diseased leaves lose green color (late blight = dark brown), so ExG is unreliable.
+    # The ML model itself is the real filter — this only blocks random selfies/blank photos.
+    score = (0.40 * exg_ratio) + (0.40 * sat_ratio) + (0.20 * texture_std)
+    is_leaf_like = score >= 0.05 and sat_ratio >= 0.05
     return is_leaf_like, score

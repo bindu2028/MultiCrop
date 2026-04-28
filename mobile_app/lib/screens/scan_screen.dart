@@ -234,7 +234,12 @@ class _ScanScreenState extends State<ScanScreen> {
 
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ResultScreen(result: result)),
+        MaterialPageRoute(
+          builder: (_) => ResultScreen(
+            result: result,
+            imageBytes: _imageBytes,
+          ),
+        ),
       );
     } catch (error) {
       if (!mounted) {

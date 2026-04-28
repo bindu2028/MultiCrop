@@ -9,6 +9,8 @@ class PredictionResponse {
   final Map<String, double> probabilities;
   final String diseaseType;
   final List<String> drugCompounds;
+  final bool isAmbiguous;
+  final String? alternativeDiagnosis;
 
   const PredictionResponse({
     required this.crop,
@@ -21,6 +23,8 @@ class PredictionResponse {
     required this.probabilities,
     required this.diseaseType,
     required this.drugCompounds,
+    this.isAmbiguous = false,
+    this.alternativeDiagnosis,
   });
 
   factory PredictionResponse.fromJson(Map<String, dynamic> json) {
@@ -42,6 +46,8 @@ class PredictionResponse {
       drugCompounds: (json['drug_compounds'] as List<dynamic>? ?? [])
           .map((e) => e.toString())
           .toList(),
+      isAmbiguous: (json['is_ambiguous'] as bool?) ?? false,
+      alternativeDiagnosis: json['alternative_diagnosis']?.toString(),
     );
   }
 }

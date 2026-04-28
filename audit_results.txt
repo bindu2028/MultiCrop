@@ -1,0 +1,58 @@
+﻿Auditing apple...
+Auditing bell_pepper...
+Auditing cherry...
+Auditing corn_maize...
+Auditing grape...
+Auditing peach...
+Auditing potato...
+Auditing strawberry...
+Auditing tomato...
+
+--- FINAL AUDIT REPORT ---
+{
+  "apple": {
+    "status": "degenerate",
+    "top_class": "Apple Scab",
+    "conf": 0.9999878406524658
+  },
+  "bell_pepper": {
+    "status": "degenerate",
+    "top_class": "Healthy",
+    "conf": 0.9878107309341431
+  },
+  "cherry": {
+    "status": "ok",
+    "top_class": "Powdery Mildew",
+    "conf": 0.9657796025276184
+  },
+  "corn_maize": {
+    "status": "ok",
+    "top_class": "Healthy",
+    "conf": 0.999994158744812
+  },
+  "grape": {
+    "status": "ok",
+    "top_class": "Healthy",
+    "conf": 0.9989991784095764
+  },
+  "peach": {
+    "status": "ok",
+    "top_class": "Bacterial Spot",
+    "conf": 1.0
+  },
+  "potato": {
+    "status": "ok",
+    "top_class": "Late Blight",
+    "conf": 0.8911887407302856
+  },
+  "strawberry": {
+    "status": "ok",
+    "top_class": "Healthy",
+    "conf": 0.8516994118690491
+  },
+  "tomato": {
+    "status": "ok",
+    "top_class": "Late Blight",
+    "conf": 0.9779419302940369
+  }
+}

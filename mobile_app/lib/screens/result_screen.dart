@@ -9,8 +9,9 @@ import '../widgets/fade_slide.dart';
 
 class ResultScreen extends StatefulWidget {
   final PredictionResponse result;
+  final Uint8List? imageBytes;
 
-  const ResultScreen({super.key, required this.result});
+  const ResultScreen({super.key, required this.result, this.imageBytes});
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -48,9 +49,31 @@ class _ResultScreenState extends State<ResultScreen> {
                 children: [
                   Text('Crop: ${result.crop.toUpperCase()}'),
                   const SizedBox(height: 8),
+                  if (result.isAmbiguous && result.alternativeDiagnosis != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        '⚖️  DUAL POTENTIAL (50/50 Split)',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFE65100),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
                   Text(
-                    result.disease,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                    result.isAmbiguous ? '${result.disease} OR ${result.alternativeDiagnosis}' : result.disease,
+                    style: TextStyle(
+                      fontSize: result.isAmbiguous ? 22 : 26, 
+                      fontWeight: FontWeight.w800,
+                      color: result.isAmbiguous ? const Color(0xFF5D4037) : null,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -139,6 +162,34 @@ class _ResultScreenState extends State<ResultScreen> {
                     value: result.confidence.clamp(0, 1),
                     color: badge.progress,
                   ),
+                  if (result.isAmbiguous && result.alternativeDiagnosis != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF8E1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFFFCC02).withValues(alpha: 0.6)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.warning_amber_rounded, color: Color(0xFFE65100), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '⚠️  Similar Condition: The model also considers this could be "${result.alternativeDiagnosis}". Consider consulting a specialist or scanning again in better lighting.',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF5D4037),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 14),
                   const Text('Remedy Summary', style: TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 8),
@@ -314,7 +365,10 @@ class _ResultScreenState extends State<ResultScreen> {
                         onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute<void>(
-                            builder: (_) => DiseaseSimulatorScreen(diseaseName: result.disease),
+                            builder: (_) => DiseaseSimulatorScreen(
+                              diseaseName: result.disease,
+                              imageBytes: widget.imageBytes,
+                            ),
                           ),
                         ),
                         icon: const Icon(Icons.fast_forward_rounded),

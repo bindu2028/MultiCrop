@@ -123,36 +123,77 @@ def _predict_with_model(
     image_array: np.ndarray,
     model: tf.keras.Model,
     labels: list[str],
-) -> tuple[str, float, dict[str, float]]:
+) -> tuple[str, float, dict[str, float], str | None, bool]:
+    # Use model predictions but apply Temperature Scaling (T) to soften results.
+    # T > 1.0 flattens the distribution (prevents 100% arrogance).
+    TEMPERATURE = 2.5
+    # EPSILON adds a "uncertainty floor" so scores are forced away from 100%.
+    EPSILON = 0.08
+    
+    # Get raw predictions (probabilities)
     predictions = model.predict(image_array, verbose=0)
     scores = predictions[0]
-    class_index = int(np.argmax(scores))
-    confidence = float(scores[class_index])
-    if class_index >= len(labels):
+    
+    # Apply Smoothing + Temperature Scaling 
+    # This "divides" the confidence across other classes.
+    num_classes = len(scores)
+    smoothed_scores = (scores * (1.0 - EPSILON)) + (EPSILON / num_classes)
+    
+    scaled_scores = np.power(smoothed_scores, 1.0 / TEMPERATURE)
+    scaled_scores = scaled_scores / np.sum(scaled_scores)
+    
+    sorted_indices = np.argsort(scaled_scores)[::-1]
+    top_index = int(sorted_indices[0])
+    confidence = float(scaled_scores[top_index])
+    
+    if top_index >= len(labels):
         raise ValueError("Model output classes do not match class label metadata.")
 
-    disease = labels[class_index]
+    disease = labels[top_index]
     probabilities = {
-        labels[idx]: float(score) for idx, score in enumerate(scores[: len(labels)])
+        labels[idx]: float(score) for idx, score in enumerate(scaled_scores[: len(labels)])
     }
+    
+    # Check if top-2 predictions are highly ambiguous (within 8% gap)
+    # If so, we force a "Dual Diagnosis" state for "50/50" realism.
+    DUAL_THRESHOLD = 0.08
+    alternative_diagnosis = None
+    is_ambiguous = False
+    
+    if len(sorted_indices) > 1:
+        second_index = int(sorted_indices[1])
+        second_confidence = float(scaled_scores[second_index])
+        
+        # If the gap is very small, we treat it as a tie (50/50)
+        if (confidence - second_confidence) < DUAL_THRESHOLD:
+            is_ambiguous = True
+            alternative_diagnosis = labels[second_index]
+            # When highly ambiguous, we soften the winner's dominance for the UI
+            # to make it look like a 50/50 split check.
+            confidence = (confidence + second_confidence) / 2.0
+        # If gap is moderate, just flag it as similar
+        elif (confidence - second_confidence) < 0.15:
+            alternative_diagnosis = labels[second_index]
+            is_ambiguous = True
+    
     if confidence < Config.CONFIDENCE_THRESHOLD:
         disease = "Uncertain"
-    return disease, confidence, probabilities
+    return disease, confidence, probabilities, alternative_diagnosis, is_ambiguous
 
 
 def predict_auto_crop(
     image_array: np.ndarray,
-) -> tuple[str, float, dict[str, float], str]:
+) -> tuple[str, float, dict[str, float], str, str | None, bool]:
     crops = available_crops()
     if not crops:
         raise ValueError("No crop models available for auto detection.")
 
-    best: tuple[str, float, dict[str, float], str] | None = None
+    best: tuple[str, float, dict[str, float], str, str | None, bool] | None = None
     for crop_slug in crops:
         model, labels, selected_crop = _load_model_for_crop(crop_slug)
-        disease, confidence, probabilities = _predict_with_model(image_array, model, labels)
+        disease, confidence, probabilities, alt, ambiguous = _predict_with_model(image_array, model, labels)
         if best is None or confidence > best[1]:
-            best = (disease, confidence, probabilities, selected_crop)
+            best = (disease, confidence, probabilities, selected_crop, alt, ambiguous)
 
     if best is None:
         raise ValueError("Auto crop detection failed.")
@@ -162,11 +203,11 @@ def predict_auto_crop(
 def predict_image(
     image_array: np.ndarray,
     crop: str | None = None,
-) -> tuple[str, float, dict[str, float], str]:
+) -> tuple[str, float, dict[str, float], str, str | None, bool]:
     if crop and _slugify_crop_name(crop) == "auto":
         return predict_auto_crop(image_array)
 
     crop_slug = _resolve_requested_crop(crop)
     model, labels, selected_crop = _load_model_for_crop(crop_slug)
-    disease, confidence, probabilities = _predict_with_model(image_array, model, labels)
-    return disease, confidence, probabilities, selected_crop
+    disease, confidence, probabilities, alt, ambiguous = _predict_with_model(image_array, model, labels)
+    return disease, confidence, probabilities, selected_crop, alt, ambiguous

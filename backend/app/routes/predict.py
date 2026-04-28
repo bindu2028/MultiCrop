@@ -49,13 +49,15 @@ def predict():
     if not image_bytes:
         return jsonify({"error": "Uploaded image is empty."}), 400
 
-    is_leaf_like, leaf_score = is_probable_leaf_image(image_bytes)
-    if not is_leaf_like:
-        return jsonify({
-            "error": "This image does not look like a leaf. Please capture a clear photo of a single plant leaf.",
-            "code": "non_leaf_image",
-            "leaf_score": round(leaf_score, 3),
-        }), 422
+    # NOTE: Leaf validator disabled — diseased/necrotic leaves lose green color and
+    # would be incorrectly rejected. The ML model handles classification directly.
+    # is_leaf_like, leaf_score = is_probable_leaf_image(image_bytes)
+    # if not is_leaf_like:
+    #     return jsonify({
+    #         "error": "This image does not look like a leaf. Please capture a clear photo of a single plant leaf.",
+    #         "code": "non_leaf_image",
+    #         "leaf_score": round(leaf_score, 3),
+    #     }), 422
 
     crop = request.form.get("crop") or request.args.get("crop")
     crops = available_crops()
@@ -67,7 +69,7 @@ def predict():
 
     try:
         image_array = preprocess_image_bytes(image_bytes)
-        disease, confidence, probabilities, selected_crop = predict_image(image_array, crop=crop)
+        disease, confidence, probabilities, selected_crop, alt_diagnosis, is_ambiguous = predict_image(image_array, crop=crop)
         disease_explanation = get_disease_explanation(disease)
         remedy = get_remedy(disease)
         remedy_sections = get_remedy_sections(disease)
@@ -85,6 +87,8 @@ def predict():
             "drug_compounds": drug_compounds,
             "crop": selected_crop,
             "is_uncertain": disease == "Uncertain",
+            "is_ambiguous": is_ambiguous,
+            "alternative_diagnosis": alt_diagnosis,
         })
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500

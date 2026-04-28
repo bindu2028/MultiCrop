@@ -45,7 +45,7 @@ DISEASE_TYPE_BY_DISEASE = {
     "Esca (Black Measles)": "Fungal",
     "Healthy": "N/A",
     "Leaf Blight": "Fungal",
-    "Leaf Scorch": "Environmental",
+    "Leaf Scorch": "Fungal",
     "Late Blight": "Fungal",
     "Northern Leaf Blight": "Fungal",
     "Powdery Mildew": "Fungal",
@@ -130,10 +130,10 @@ REMEDY_SECTIONS_BY_DISEASE = {
         "monitoring": "Review every 2 to 3 days and record new lesion count.",
     },
     "Leaf Scorch": {
-        "immediate_action": "Remove severely scorched leaves and reduce plant stress.",
-        "spray_plan": "Spray is usually secondary; prioritize irrigation correction first.",
-        "prevention": "Maintain consistent moisture and review nutrient balance.",
-        "monitoring": "Observe new growth quality over the next week.",
+        "immediate_action": "Remove and destroy infected leaves to reduce fungal spore load.",
+        "spray_plan": "Apply a labeled fungicide (like copper or captan) if the infection is spreading.",
+        "prevention": "Avoid overhead irrigation and keep the leaf surface dry.",
+        "monitoring": "Check every 3 to 5 days for new purple-to-brown irregular spots.",
     },
     "Late Blight": {
         "immediate_action": "Immediately remove and isolate heavily infected plant parts.",
