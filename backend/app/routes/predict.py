@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 from app.services.model_service import available_crops, predict_image
 from app.services.remedy_service import (
@@ -23,11 +24,13 @@ def health_check():
 
 
 @predict_bp.get("/crops")
+@jwt_required()
 def crops_list():
     return jsonify({"crops": ["auto", *available_crops()]})
 
 
 @predict_bp.post("/predict")
+@jwt_required()
 def predict():
     if "image" not in request.files:
         return jsonify({"error": "No image file provided"}), 400

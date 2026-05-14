@@ -46,6 +46,13 @@ Useful endpoints:
 - `GET /crops`
 - `POST /predict`
 
+Auth (JWT)
+- `POST /auth/login` — JSON body `{ "username": "...", "password": "..."` } returns `access_token` and `refresh_token`.
+- `POST /auth/refresh` — use refresh token to get a new access token.
+- `GET /auth/me` — protected, returns the current username when called with a valid access token.
+
+Notes: A demo admin user is created from `ADMIN_USERNAME` and `ADMIN_PASSWORD` env vars (defaults: `admin` / `password`).
+
 ## Mobile App Setup (Flutter)
 From repository root:
 

@@ -5,6 +5,10 @@ import os
 class Config:
     BASE_DIR = Path(__file__).resolve().parents[1]
     PROJECT_ROOT = BASE_DIR.parent
+    
+    # SQLAlchemy
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{BASE_DIR / 'app.db'}"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MODEL_CANDIDATES = [
         Path(os.getenv("MODEL_PATH", "")) if os.getenv("MODEL_PATH") else None,
         PROJECT_ROOT / "model" / "saved_model" / "plant_disease_model.h5",
@@ -22,3 +26,7 @@ class Config:
         "Septoria Leaf Spot",
         "Yellow Leaf Curl Virus",
     ]
+    # JWT
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
+    JWT_ACCESS_TOKEN_EXPIRES = int(os.getenv("JWT_ACCESS_EXPIRES_SECONDS", 3600))       # 1 hour
+    JWT_REFRESH_TOKEN_EXPIRES = int(os.getenv("JWT_REFRESH_EXPIRES_SECONDS", 604800))   # 7 days
