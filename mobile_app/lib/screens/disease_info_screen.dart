@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../data/disease_knowledge.dart';
@@ -16,23 +17,68 @@ class DiseaseInfoScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(info?.name ?? diseaseName),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Overview'),
-              Tab(text: 'Treatment'),
-              Tab(text: 'Prevention'),
-            ],
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Color(0xFF1B5E20),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(56),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0xFF81C784).withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: TabBar(
+                tabs: [
+                  Tab(
+                    icon: Icon(Icons.visibility_outlined, size: 18),
+                    text: 'Overview',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.healing_outlined, size: 18),
+                    text: 'Treatment',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.shield_rounded, size: 18),
+                    text: 'Prevention',
+                  ),
+                ],
+                labelColor: Color(0xFF81C784),
+                unselectedLabelColor: Color(0xFF99A399),
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                ),
+                indicatorColor: Color(0xFF81C784),
+                indicatorWeight: 3,
+              ),
+            ),
           ),
         ),
-        body: info == null
-            ? _NotFoundView(diseaseName: diseaseName)
-            : TabBarView(
-                children: [
-                  _OverviewTab(info: info),
-                  _TreatmentTab(info: info),
-                  _PreventionTab(info: info),
-                ],
-              ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF81C784).withValues(alpha: 0.08),
+                Color(0xFF42A5F5).withValues(alpha: 0.08),
+              ],
+            ),
+          ),
+          child: info == null
+              ? _NotFoundView(diseaseName: diseaseName)
+              : TabBarView(
+                  children: [
+                    _OverviewTab(info: info),
+                    _TreatmentTab(info: info),
+                    _PreventionTab(info: info),
+                  ],
+                ),
+        ),
       ),
     );
   }
@@ -122,89 +168,179 @@ class _TreatmentTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Organic Treatment
         Container(
-          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFECFDF5),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFBBF7D0)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF047857).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.eco_outlined, color: Color(0xFF047857), size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Organic / Natural',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF065F46)),
-                  ),
-                ],
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.95),
+                Colors.white.withValues(alpha: 0.90),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF1B5E20).withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: Offset(0, 4),
               ),
-              const SizedBox(height: 10),
-              Text(info.organicTreatment, style: const TextStyle(color: Color(0xFF1F4F3A), height: 1.5)),
             ],
           ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFBFDBFE)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1D4ED8).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF81C784), Color(0xFF66BB6A)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.eco_outlined, color: Colors.white, size: 20),
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Organic / Natural',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            color: Color(0xFF1B5E20),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: const Icon(Icons.science_outlined, color: Color(0xFF1D4ED8), size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'Chemical Treatment',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF1E3A8A)),
-                  ),
-                ],
+                    SizedBox(height: 12),
+                    Text(
+                      info.organicTreatment,
+                      style: TextStyle(
+                        color: Color(0xFF456447),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              Text(info.chemicalTreatment, style: const TextStyle(color: Color(0xFF1E3A8A), height: 1.5)),
+            ),
+          ),
+        ),
+        SizedBox(height: 14),
+
+        // Chemical Treatment
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.95),
+                Colors.white.withValues(alpha: 0.90),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0xFF1B5E20).withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: Offset(0, 4),
+              ),
             ],
           ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF42A5F5), Color(0xFF2196F3)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.science_outlined, color: Colors.white, size: 20),
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Chemical Treatment',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            color: Color(0xFF1B5E20),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      info.chemicalTreatment,
+                      style: TextStyle(
+                        color: Color(0xFF456447),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 14),
+
+        // Warning
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF7ED),
+            color: Color(0xFFFFF59D).withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFFDE68A)),
+            border: Border.all(
+              color: Color(0xFFFBC02D).withValues(alpha: 0.4),
+            ),
           ),
           child: Row(
-            children: const [
-              Icon(Icons.warning_amber_rounded, color: Color(0xFFB45309), size: 18),
-              SizedBox(width: 8),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_rounded, color: Color(0xFFF57F17), size: 18),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Always follow label instructions and local regulations before applying any pesticide.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF92400E), fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6F5900),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -299,27 +435,77 @@ class _InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color,
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: iconColor),
-              ),
-            ],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.95),
+            Colors.white.withValues(alpha: 0.90),
+          ],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF1B5E20).withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: Offset(0, 4),
           ),
-          const SizedBox(height: 8),
-          Text(content, style: const TextStyle(height: 1.5)),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [iconColor, iconColor.withValues(alpha: 0.8)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 22),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Color(0xFF1B5E20),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Text(
+                  content,
+                  style: TextStyle(
+                    color: Color(0xFF456447),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

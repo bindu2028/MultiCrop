@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/auth_session.dart';
+import 'network_config.dart';
 
 class AuthService {
   static const _accessTokenKey = 'jwt_access_token';
@@ -19,18 +20,7 @@ class AuthService {
   // Base URL — mirrors api_service.dart logic
   // ---------------------------------------------------------------------------
   static String _baseUrl() {
-    const configured = String.fromEnvironment('API_BASE_URL');
-    if (configured.isNotEmpty) {
-      return configured.endsWith('/') ? configured.substring(0, configured.length - 1) : configured;
-    }
-    if (kIsWeb) {
-      final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-      return 'http://$host:5000';
-    }
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.29.52:5000';
-    }
-    return 'http://127.0.0.1:5000';
+    return resolveApiBaseUrl();
   }
 
   // ---------------------------------------------------------------------------

@@ -11,6 +11,12 @@ class PredictionResponse {
   final List<String> drugCompounds;
   final bool isAmbiguous;
   final String? alternativeDiagnosis;
+  final bool multiLeafWarning;
+  final bool isUnsupportedCrop;
+  final int severityScore;
+  final String severityLabel;
+  final int affectedAreaPct;
+  final String severityRecommendation;
 
   const PredictionResponse({
     required this.crop,
@@ -25,6 +31,12 @@ class PredictionResponse {
     required this.drugCompounds,
     this.isAmbiguous = false,
     this.alternativeDiagnosis,
+    this.multiLeafWarning = false,
+    this.isUnsupportedCrop = false,
+    this.severityScore = 0,
+    this.severityLabel = '',
+    this.affectedAreaPct = 0,
+    this.severityRecommendation = '',
   });
 
   factory PredictionResponse.fromJson(Map<String, dynamic> json) {
@@ -48,6 +60,12 @@ class PredictionResponse {
           .toList(),
       isAmbiguous: (json['is_ambiguous'] as bool?) ?? false,
       alternativeDiagnosis: json['alternative_diagnosis']?.toString(),
+      multiLeafWarning: (json['multi_leaf_warning'] as bool?) ?? false,
+      isUnsupportedCrop: (json['is_unsupported_crop'] as bool?) ?? false,
+      severityScore: (json['severity_score'] as num?)?.toInt() ?? 0,
+      severityLabel: (json['severity_label'] ?? '').toString(),
+      affectedAreaPct: (json['affected_area_pct'] as num?)?.toInt() ?? 0,
+      severityRecommendation: (json['severity_recommendation'] ?? '').toString(),
     );
   }
 }

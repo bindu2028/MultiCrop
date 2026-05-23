@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../models/prediction_response.dart';
 import 'auth_service.dart';
+import 'network_config.dart';
 
 class ApiService {
   ApiService({String? baseUrl, AuthService? authService})
@@ -16,24 +17,7 @@ class ApiService {
   final AuthService _auth;
 
   static String _defaultBaseUrl() {
-    const configuredBaseUrl = String.fromEnvironment('API_BASE_URL');
-    if (configuredBaseUrl.isNotEmpty) {
-      return configuredBaseUrl.endsWith('/')
-          ? configuredBaseUrl.substring(0, configuredBaseUrl.length - 1)
-          : configuredBaseUrl;
-    }
-
-    if (kIsWeb) {
-      final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-      return 'http://$host:5000';
-    }
-
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      // Real device: use the PC's Wi-Fi IP
-      return 'http://192.168.29.52:5000';
-    }
-
-    return 'http://127.0.0.1:5000';
+    return resolveApiBaseUrl();
   }
 
   // ---------------------------------------------------------------------------

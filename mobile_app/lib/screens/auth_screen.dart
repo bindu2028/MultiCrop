@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../models/auth_session.dart';
@@ -302,87 +303,342 @@ class _AuthFormView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: loading ? null : onBack,
-                        icon: const Icon(Icons.arrow_back_rounded),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isSignIn ? 'Sign In' : 'Create Account',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF81C784).withValues(alpha: 0.08),
+            Color(0xFF42A5F5).withValues(alpha: 0.08),
+          ],
+        ),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.92),
+                        Colors.white.withValues(alpha: 0.88),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.4),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF1B5E20).withValues(alpha: 0.12),
+                        blurRadius: 24,
+                        offset: Offset(0, 12),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isSignIn ? 'Welcome back to PlantLens.' : 'Start your smart plant care journey.',
-                    style: const TextStyle(color: Color(0xFF5C7362)),
-                  ),
-                  const SizedBox(height: 16),
-                  if (!isSignIn) ...[
-                    TextField(
-                      controller: nameController,
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Full name'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(28),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: loading ? null : onBack,
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: Icon(
+                                    Icons.arrow_back_rounded,
+                                    color: loading ? Color(0xFFCCC) : Color(0xFF1B5E20),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              isSignIn ? 'Welcome Back' : 'Get Started',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF1B5E20),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          isSignIn
+                              ? 'Sign in to your PlantLens account'
+                              : 'Create your smart plant care account',
+                          style: TextStyle(
+                            color: Color(0xFF558B2F),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 24),
+                        if (!isSignIn) ...[
+                          _ModernTextField(
+                            controller: nameController,
+                            hintText: 'Full Name',
+                            icon: Icons.person_outline,
+                            enabled: !loading,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          SizedBox(height: 14),
+                        ],
+                        _ModernTextField(
+                          controller: emailController,
+                          hintText: 'Email Address',
+                          icon: Icons.email_outlined,
+                          enabled: !loading,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                        ),
+                        SizedBox(height: 14),
+                        _ModernTextField(
+                          controller: passwordController,
+                          hintText: 'Password',
+                          icon: Icons.lock_outline,
+                          enabled: !loading,
+                          isPassword: true,
+                          onSubmitted: (_) => loading ? null : onSubmit(),
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [Color(0xFF81C784), Color(0xFF66BB6A)],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF81C784).withValues(alpha: 0.4),
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: loading ? null : onSubmit,
+                              borderRadius: BorderRadius.circular(14),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: loading
+                                    ? SizedBox(
+                                        height: 24,
+                                        child: Center(
+                                          child: SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        isSignIn ? 'Sign In' : 'Create Account',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 14),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: loading ? null : onSwitchMode,
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: Text(
+                                isSignIn
+                                    ? "Don't have an account? Create one"
+                                    : 'Already have an account? Sign in',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xFF81C784),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: message.toLowerCase().contains('error') ||
+                                    message.toLowerCase().contains('failed')
+                                ? Color(0xFFFFEBEE)
+                                : Color(0xFFF1F8E9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: message.toLowerCase().contains('error') ||
+                                      message.toLowerCase().contains('failed')
+                                  ? Color(0xFFEF5350)
+                                  : Color(0xFFA5D6A7),
+                            ),
+                          ),
+                          child: Text(
+                            message,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: message.toLowerCase().contains('error') ||
+                                      message.toLowerCase().contains('failed')
+                                  ? Color(0xFFD32F2F)
+                                  : Color(0xFF558B2F),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'Email'),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    onSubmitted: (_) => loading ? null : onSubmit(),
-                    decoration: const InputDecoration(labelText: 'Password'),
-                  ),
-                  const SizedBox(height: 14),
-                  FilledButton(
-                    onPressed: loading ? null : onSubmit,
-                    child: loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(isSignIn ? 'Sign In' : 'Create Account'),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: loading ? null : onSwitchMode,
-                    child: Text(
-                      isSignIn
-                          ? "Don't have an account? Sign up"
-                          : 'Already have an account? Sign in',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF5C7362)),
-                  ),
-                ],
+                ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModernTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final IconData icon;
+  final bool enabled;
+  final bool isPassword;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final Function(String)? onSubmitted;
+
+  const _ModernTextField({
+    required this.controller,
+    required this.hintText,
+    required this.icon,
+    this.enabled = true,
+    this.isPassword = false,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.done,
+    this.onSubmitted,
+  });
+
+  @override
+  State<_ModernTextField> createState() => _ModernTextFieldState();
+}
+
+class _ModernTextFieldState extends State<_ModernTextField> {
+  late bool _obscureText;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.isPassword;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF81C784).withValues(alpha: _isFocused ? 0.08 : 0.05),
+            Color(0xFF66BB6A).withValues(alpha: _isFocused ? 0.08 : 0.05),
+          ],
+        ),
+        border: Border.all(
+          color: _isFocused
+              ? Color(0xFF81C784).withValues(alpha: 0.5)
+              : Color(0xFF81C784).withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+        boxShadow: _isFocused
+            ? [
+                BoxShadow(
+                  color: Color(0xFF81C784).withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ]
+            : [],
+      ),
+      child: Focus(
+        onFocusChange: (focused) {
+          setState(() => _isFocused = focused);
+        },
+        child: TextField(
+          controller: widget.controller,
+          enabled: widget.enabled,
+          obscureText: _obscureText,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          onSubmitted: widget.onSubmitted,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            hintStyle: TextStyle(
+              color: Color(0xFF99A399),
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(
+              widget.icon,
+              color: _isFocused ? Color(0xFF81C784) : Color(0xFF558B2F),
+              size: 20,
+            ),
+            suffixIcon: widget.isPassword
+                ? Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => setState(() => _obscureText = !_obscureText),
+                      child: Icon(
+                        _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        color: Color(0xFF558B2F),
+                        size: 20,
+                      ),
+                    ),
+                  )
+                : null,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          style: TextStyle(
+            color: Color(0xFF1B5E20),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

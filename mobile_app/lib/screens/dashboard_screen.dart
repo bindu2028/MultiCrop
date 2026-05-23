@@ -27,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   final HistoryService _historyService = HistoryService();
   late Future<List<ScanHistoryItem>> _historyFuture;
   late final AnimationController _cardsAnimationController;
+  bool _showAllCrops = false;
 
   final List<_PlantCardItem> _modelCrops = const [
     _PlantCardItem('Apple', [Color(0xFF78B256), Color(0xFF3D7135)], 'apple', 'assets/images/crops/apple.png'),
@@ -97,14 +98,16 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                 const SizedBox(height: 18),
                 _SectionHeader(
                   title: 'Model Crops',
-                  actionLabel: 'Show More',
-                  onActionTap: () => widget.onNavigateToTab(2),
+                  actionLabel: _showAllCrops ? 'Show Less' : 'Show More',
+                  onActionTap: () => setState(() {
+                    _showAllCrops = !_showAllCrops;
+                  }),
                 ),
                 const SizedBox(height: 10),
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _modelCrops.length,
+                  itemCount: _showAllCrops ? _modelCrops.length : 4,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
@@ -200,7 +203,7 @@ class _ExploreHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Plant AI',
+                        'Plant Disease Detection',
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFF37673B)),
                       ),
                       const SizedBox(height: 4),
