@@ -16,19 +16,7 @@ String resolveApiBaseUrl() {
     return _normalizeBaseUrl(apiUrl);
   }
 
-  // 2. In debug mode: use local server
-  if (kDebugMode) {
-    if (kIsWeb) {
-      final host = Uri.base.host.isEmpty ? '127.0.0.1' : Uri.base.host;
-      return 'http://$host:5000';
-    }
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:5000'; // Android emulator loopback
-    }
-    return 'http://127.0.0.1:5000';
-  }
-
-  // 3. Release mode: always use production
+  // 2. Default: always use production Render URL (makes testing plug-and-play)
   return _kProductionUrl;
 }
 
