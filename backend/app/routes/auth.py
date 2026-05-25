@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 
 from app.services.user_service import verify_credentials, create_user
@@ -20,8 +20,11 @@ def login():
     if not verify_credentials(username, password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    access = create_access_token(identity=username)
-    refresh = create_refresh_token(identity=username)
+    access_expires = timedelta(seconds=current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES", 3600))
+    refresh_expires = timedelta(seconds=current_app.config.get("JWT_REFRESH_TOKEN_EXPIRES", 604800))
+    
+    access = create_access_token(identity=username, expires_delta=access_expires)
+    refresh = create_refresh_token(identity=username, expires_delta=refresh_expires)
 
     return jsonify({"access_token": access, "refresh_token": refresh}), 200
 
@@ -41,16 +44,19 @@ def register():
     if not user:
         return jsonify({"error": "Username already exists"}), 409
 
-    access = create_access_token(identity=username)
-    refresh = create_refresh_token(identity=username)
+    access_expires = timedelta(seconds=current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES", 3600))
+    refresh_expires = timedelta(seconds=current_app.config.get("JWT_REFRESH_TOKEN_EXPIRES", 604800))
+    
+    access = create_access_token(identity=username, expires_delta=access_expires)
+    refresh = create_refresh_token(identity=username, expires_delta=refresh_expires)
     return jsonify({"access_token": access, "refresh_token": refresh}), 201
-
 
 @auth_bp.post("/refresh")
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity()
-    new_token = create_access_token(identity=identity)
+    access_expires = timedelta(seconds=current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES", 3600))
+    new_token = create_access_token(identity=identity, expires_delta=access_expires)
     return jsonify({"access_token": new_token}), 200
 
 

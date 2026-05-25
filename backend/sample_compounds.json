@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "compound_name": "CNP0000001",
+    "smiles": "O=C1OC2C(C(=C)C)CC1C3(O)CC4OC54C(=O)OC[CH]253C",
+    "molecular_formula": "C16H20O6"
+  },
+  {
+    "id": 2,
+    "compound_name": "CNP0000002",
+    "smiles": "O=C(O)C=1C(=O)C(O)(CC(=O)C1N)C2OC(COC(=O)C)C(OC(=O)C(N=CS)=CC)C(OC3OC(C)C(O)C(OC)C3)C2O",
+    "molecular_formula": "C27H36N2O15S"
+  },
+  {
+    "id": 3,
+    "compound_name": "CNP0000003",
+    "smiles": "O=C1OC2C(O)C=CC3C4=C5C(=O)C=6C(OC)=CC=C(OC)C6C(=O)C5=C(OC)C=C4CC32C(O)C7=CC(=CC(OC)=C17)C",
+    "molecular_formula": "C34H30O10"
+  },
+  {
+    "id": 4,
+    "compound_name": "CNP0000004",
+    "smiles": "O=C1OC2C(O)C=CC3C4=C5C(=O)C=6C=CC=C(O)C6C(=O)C5=C(OC)C=C4CC32C(O)C7=CC(=CC(OC)=C17)C",
+    "molecular_formula": "C32H26O9"
+  },
+  {
+    "id": 5,
+    "compound_name": "CNP0000005",
+    "smiles": "O=C(OC1CC(C)(CCOC(=O)C(C)(C)C)C2CC(C)(C)CC2C1OC(=O)C=3C=CC=CC3)C=4C=CC=CC4",
+    "molecular_formula": "C33H42O6"
+  },
+  {
+    "id": 6,
+    "compound_name": "CNP0000006",
+    "smiles": "O=C1OC2C(O)C=CC3C4=C5C(=O)C=6C=CC=C(O)C6C(=O)C5=C(O)C=C4CC32C(O)C7=CC(=CC(OC)=C17)C",
+    "molecular_formula": "C31H24O9"
+  }
+]

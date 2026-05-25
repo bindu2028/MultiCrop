@@ -10,12 +10,20 @@ def bootstrap_admin_user() -> None:
     
     admin_username = os.getenv("ADMIN_USERNAME", "admin")
     admin_password = os.getenv("ADMIN_PASSWORD", "password")
+
+    # Warn loudly if default insecure credentials are being used
+    if admin_username == "admin" or admin_password == "password":
+        import logging
+        logging.warning(
+            "[SECURITY] Bootstrap is using default credentials (admin/password). "
+            "Set ADMIN_USERNAME and ADMIN_PASSWORD env vars before deploying to production!"
+        )
     
     admin_user = User(username=admin_username)
     admin_user.set_password(admin_password)
     db.session.add(admin_user)
     db.session.commit()
-    print(f"✓ Admin user '{admin_username}' created")
+    print(f"[BOOTSTRAP] Admin user '{admin_username}' created")
 
 
 def verify_credentials(username: str, password: str) -> bool:

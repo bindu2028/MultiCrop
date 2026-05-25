@@ -50,6 +50,49 @@ class ApiService {
         .toList();
   }
 
+  // ---------------------------------------------------------------------------
+  // History & Diary cloud sync endpoints
+  // ---------------------------------------------------------------------------
+
+  Future<List<dynamic>> fetchScanHistory({int limit = 50, int offset = 0}) async {
+    final response = await _getWithAuth('/api/history/scans?limit=$limit&offset=$offset');
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to load scan history');
+    }
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  Future<void> clearScanHistory() async {
+    final response = await _deleteWithAuth('/api/history/scans');
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to clear scan history');
+    }
+  }
+
+  Future<List<dynamic>> fetchTrackedPlants() async {
+    final response = await _getWithAuth('/api/history/plants');
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to load tracked plants');
+    }
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  Future<Map<String, dynamic>> addOrUpdateTrackedPlant(Map<String, dynamic> plantData) async {
+    final response = await _postWithAuth('/api/history/plants', plantData);
+    if (response.statusCode >= 400) {
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      throw Exception((body['error'] ?? 'Failed to save tracked plant').toString());
+    }
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  Future<void> deleteTrackedPlant(int plantId) async {
+    final response = await _deleteWithAuth('/api/history/plants/$plantId');
+    if (response.statusCode >= 400) {
+      throw Exception('Failed to delete tracked plant');
+    }
+  }
+
   Future<PredictionResponse> predictDisease(
     Uint8List imageBytes, {
     required String crop,
@@ -58,37 +101,31 @@ class ApiService {
     final token = await _validToken();
     final resolvedFilename = _resolveFilename(filename);
 
-    final request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/predict'))
-      ..headers['Authorization'] = 'Bearer $token'
-      ..fields['crop'] = crop
-      ..files.add(
-        http.MultipartFile.fromBytes(
-          'image',
-          imageBytes,
-          filename: resolvedFilename,
-          contentType: _mediaTypeForFilename(resolvedFilename),
-        ),
+    Future<http.StreamedResponse> sendRequest(String authToken) {
+      final request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/predict'))
+        ..headers['Authorization'] = 'Bearer $authToken'
+        ..fields['crop'] = crop
+        ..files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            imageBytes,
+            filename: resolvedFilename,
+            contentType: _mediaTypeForFilename(resolvedFilename),
+          ),
+        );
+      return request.send().timeout(
+        const Duration(seconds: 30),
+        onTimeout: () => throw Exception('Prediction request timed out. Please check your connection and try again.'),
       );
+    }
 
-    http.StreamedResponse streamedResponse = await request.send();
+    http.StreamedResponse streamedResponse = await sendRequest(token);
 
     // Auto-refresh: if 401 try once more with a fresh token
     if (streamedResponse.statusCode == 401) {
       final newToken = await _auth.getValidAccessToken();
       if (newToken != null) {
-        final retryRequest =
-            http.MultipartRequest('POST', Uri.parse('$_baseUrl/predict'))
-              ..headers['Authorization'] = 'Bearer $newToken'
-              ..fields['crop'] = crop
-              ..files.add(
-                http.MultipartFile.fromBytes(
-                  'image',
-                  imageBytes,
-                  filename: resolvedFilename,
-                  contentType: _mediaTypeForFilename(resolvedFilename),
-                ),
-              );
-        streamedResponse = await retryRequest.send();
+        streamedResponse = await sendRequest(newToken);
       }
     }
 
@@ -129,6 +166,60 @@ class ApiService {
       final newToken = await _auth.getValidAccessToken();
       if (newToken != null) {
         response = await http.get(
+          Uri.parse('$_baseUrl$path'),
+          headers: {'Authorization': 'Bearer $newToken'},
+        );
+      }
+    }
+
+    return response;
+  }
+
+  /// POST request with automatic Bearer token + one 401 retry/refresh.
+  Future<http.Response> _postWithAuth(String path, Map<String, dynamic> body) async {
+    final token = await _validToken();
+
+    var response = await http.post(
+      Uri.parse('$_baseUrl$path'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    // Auto-refresh on 401
+    if (response.statusCode == 401) {
+      final newToken = await _auth.getValidAccessToken();
+      if (newToken != null) {
+        response = await http.post(
+          Uri.parse('$_baseUrl$path'),
+          headers: {
+            'Authorization': 'Bearer $newToken',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        );
+      }
+    }
+
+    return response;
+  }
+
+  /// DELETE request with automatic Bearer token + one 401 retry/refresh.
+  Future<http.Response> _deleteWithAuth(String path) async {
+    final token = await _validToken();
+
+    var response = await http.delete(
+      Uri.parse('$_baseUrl$path'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    // Auto-refresh on 401
+    if (response.statusCode == 401) {
+      final newToken = await _auth.getValidAccessToken();
+      if (newToken != null) {
+        response = await http.delete(
           Uri.parse('$_baseUrl$path'),
           headers: {'Authorization': 'Bearer $newToken'},
         );

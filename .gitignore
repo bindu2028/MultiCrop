@@ -6,3 +6,43 @@ dataset/
 *.pt
 *.pth
 __pycache__/
+
+# Environment files — NEVER commit API keys
+.env
+*.env
+.env.*
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Flask / SQLite local DB
+backend/app.db
+*.db
+
+# Large data files (too big for GitHub)
+backend/data/raw/
+*.csv
+
+# Log files
+logs/
+*.log
+
+# Debug / scratch files
+response.txt
+response2.txt
+debug_*.py
+load_now.py
+test_gemini.py
+
+# Flutter / Dart build output
+mobile_app/build/
+mobile_app/.dart_tool/
+mobile_app/.flutter-plugins
+mobile_app/.flutter-plugins-dependencies
+mobile_app/android/.gradle/
+
+# IDE
+.vscode/settings.json
+.idea/

@@ -32,6 +32,7 @@ class _AppShellState extends State<AppShell> {
       body: ModuleSelectorScreen(
         userName: widget.userName,
         onScanRequested: _openScanScreen,
+        onLogout: widget.onLogout,
       ),
     );
   }

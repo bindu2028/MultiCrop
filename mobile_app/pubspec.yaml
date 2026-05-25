@@ -66,7 +66,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - .env
+    # NOTE: Do NOT add .env here — it would bundle your API keys inside the APK.
+    # Pass secrets at build time: flutter build apk --dart-define=API_BASE_URL=https://...
     - assets/images/crops/
     - assets/translations/
     - assets/images/simulations/tomato_late_blight/

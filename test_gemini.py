@@ -1,7 +1,20 @@
 import requests
 import json
+import os
+import sys
+from pathlib import Path
 
-API_KEY = "AIzaSyBFpk4TjVXBW0lE60qouiSgWbGhRMvDN8Q"
+# Load backend/.env if it exists
+backend_env = Path(__file__).resolve().parent / "backend" / ".env"
+if backend_env.exists():
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=backend_env)
+
+API_KEY = os.getenv("GEMINI_API_KEY")
+if not API_KEY:
+    print("ERROR: GEMINI_API_KEY environment variable is not configured.")
+    sys.exit(1)
+
 url = f"https://generativelanguage.googleapis.com/v1beta/models?key={API_KEY}"
 
 print(f"Testing Gemini API Key: {API_KEY[:4]}...{API_KEY[-4:]}")

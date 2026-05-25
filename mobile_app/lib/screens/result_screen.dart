@@ -56,6 +56,40 @@ class _ResultScreenState extends State<ResultScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Multi-leaf warning banner (L5)
+            if (result.multiLeafWarning)
+              FadeSlide(
+                delay: const Duration(milliseconds: 0),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF8E1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFFFB300).withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.layers_rounded, color: Color(0xFFF57F17), size: 18),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Multiple leaves detected. For the most accurate diagnosis, scan a single isolated leaf.',
+                          style: TextStyle(
+                            color: Color(0xFF6F5900),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
             // Image Preview if available
             if (widget.imageBytes != null)
               FadeSlide(
@@ -485,7 +519,189 @@ class _ResultScreenState extends State<ResultScreen> {
 
             SizedBox(height: 16),
 
-            // Action Buttons
+            // Severity Card (L1)
+            if (result.severityScore > 0)
+              FadeSlide(
+                delay: const Duration(milliseconds: 250),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.95),
+                        Colors.white.withValues(alpha: 0.90),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF1B5E20).withValues(alpha: 0.12),
+                        blurRadius: 24,
+                        offset: Offset(0, 12),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Disease Severity',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF1B5E20),
+                                  ),
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: _severityColor(result.severityLabel).withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: _severityColor(result.severityLabel).withValues(alpha: 0.4),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    result.severityLabel.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      color: _severityColor(result.severityLabel),
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+
+                            // Score bar
+                            Row(
+                              children: [
+                                Text(
+                                  'Severity Score',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF546E7A),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '${result.severityScore}/10',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900,
+                                    color: _severityColor(result.severityLabel),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: LinearProgressIndicator(
+                                value: result.severityScore / 10.0,
+                                minHeight: 10,
+                                backgroundColor: const Color(0xFF1B5E20).withValues(alpha: 0.08),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  _severityColor(result.severityLabel),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+
+                            // Affected area
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF42A5F5).withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: const Color(0xFF42A5F5).withValues(alpha: 0.25),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.crop_free_rounded,
+                                          size: 15, color: Color(0xFF1565C0)),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Affected area: ${result.affectedAreaPct}%',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1565C0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            if (result.severityRecommendation.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: _severityColor(result.severityLabel).withValues(alpha: 0.06),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: _severityColor(result.severityLabel).withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.lightbulb_outline_rounded,
+                                      size: 16,
+                                      color: _severityColor(result.severityLabel),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        result.severityRecommendation,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: _severityColor(result.severityLabel)
+                                              .withValues(alpha: 0.85),
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            SizedBox(height: 16),
             FadeSlide(
               delay: const Duration(milliseconds: 400),
               child: Row(
@@ -630,6 +846,21 @@ class _ResultScreenState extends State<ResultScreen> {
       foreground: Color(0xFFB42318),
       progress: Color(0xFFB42318),
     );
+  }
+
+  Color _severityColor(String label) {
+    switch (label.toLowerCase()) {
+      case 'mild':
+        return const Color(0xFF43A047);    // Green
+      case 'moderate':
+        return const Color(0xFFFB8C00);    // Amber
+      case 'severe':
+        return const Color(0xFFE53935);    // Red
+      case 'critical':
+        return const Color(0xFF6A1B9A);    // Deep Purple
+      default:
+        return const Color(0xFF546E7A);    // Grey
+    }
   }
 
   Color _getCategoryColor(String type) {

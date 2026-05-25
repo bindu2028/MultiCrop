@@ -8,11 +8,13 @@ import 'notifications_screen.dart';
 class ModuleSelectorScreen extends StatefulWidget {
   final String userName;
   final void Function([String? crop]) onScanRequested;
+  final Future<void> Function() onLogout;
 
   const ModuleSelectorScreen({
     super.key,
     required this.userName,
     required this.onScanRequested,
+    required this.onLogout,
   });
 
   @override
@@ -79,7 +81,7 @@ class _ModuleSelectorScreenState extends State<ModuleSelectorScreen>
             icon: const Icon(Icons.tune_rounded),
             onSelected: (action) {
               if (action == 'logout') {
-                // Navigate back or logout
+                widget.onLogout();
               }
             },
             itemBuilder: (context) => const [

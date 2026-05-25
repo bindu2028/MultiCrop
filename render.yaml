@@ -5,6 +5,15 @@ services:
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    envVars:
+      - key: JWT_SECRET_KEY
+        generateValue: true   # Render generates once and keeps it stable across deploys
+      - key: GEMINI_API_KEY
+        sync: false           # Set this manually in the Render dashboard
+      - key: DATABASE_URL
+        fromDatabase:
+          name: plantlens-db
+          property: connectionString
 
   - type: static
     name: plantlens-web
