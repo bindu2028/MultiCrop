@@ -8,40 +8,30 @@ import tensorflow as tf
 from app.config import Config
 
 
-def _ensure_models_exist():
+def _ensure_single_model_exists(filename: str, num_classes: int) -> Path:
     model_dir = Config.PROJECT_ROOT / "model" / "saved_model"
     model_dir.mkdir(parents=True, exist_ok=True)
-    
-    models_to_create = [
-        ("plant_disease_model.h5", 6),
-        ("plant_disease_apple.h5", 4),
-        ("plant_disease_bell_pepper.h5", 2),
-        ("plant_disease_cherry.h5", 2),
-        ("plant_disease_corn_maize.h5", 4),
-        ("plant_disease_grape.h5", 4),
-        ("plant_disease_peach.h5", 2),
-        ("plant_disease_potato.h5", 3),
-        ("plant_disease_strawberry.h5", 2),
-        ("plant_disease_tomato.h5", 6),
-    ]
-    
-    for filename, num_classes in models_to_create:
-        path = model_dir / filename
-        if not path.exists():
-            print(f"[Model Init] Generating dummy model: {filename} ({num_classes} classes)...")
-            try:
-                m = tf.keras.Sequential([
-                    tf.keras.layers.Input(shape=(Config.IMAGE_SIZE, Config.IMAGE_SIZE, 3)),
-                    tf.keras.layers.Flatten(),
-                    tf.keras.layers.Dense(num_classes, activation="softmax")
-                ])
-                m.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
-                m.save(path)
-            except Exception as e:
-                print(f"[Model Init] Failed to create {filename}: {e}")
+    path = model_dir / filename
+    if not path.exists():
+        print(f"[Model Init] Dynamically generating dummy model: {filename} ({num_classes} classes)...")
+        try:
+            m = tf.keras.Sequential([
+                tf.keras.layers.Input(shape=(Config.IMAGE_SIZE, Config.IMAGE_SIZE, 3)),
+                tf.keras.layers.Flatten(),
+                tf.keras.layers.Dense(num_classes, activation="softmax")
+            ])
+            m.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+            m.save(path)
+        except Exception as e:
+            print(f"[Model Init] Failed to create {filename}: {e}")
+    return path
 
 
-_ensure_models_exist()
+def _ensure_default_model_exists():
+    _ensure_single_model_exists("plant_disease_model.h5", 6)
+
+
+_ensure_default_model_exists()
 
 
 def resolve_model_path() -> Path:
@@ -91,11 +81,12 @@ def _slugify_crop_name(name: str) -> str:
 def _discover_models() -> dict[str, Path]:
     model_dir = Config.PROJECT_ROOT / "model" / "saved_model"
     models: dict[str, Path] = {}
-    if model_dir.exists():
-        for path in model_dir.glob("plant_disease_*.h5"):
-            slug = path.stem.replace("plant_disease_", "", 1)
-            if slug and slug != "model":
-                models[slug] = path
+    
+    # Pre-populate with all known supported crops to ensure they are available
+    # even before their h5 files are dynamically generated
+    for crop in FALLBACK_CLASS_LABELS_BY_CROP.keys():
+        models[crop] = model_dir / f"plant_disease_{crop}.h5"
+        
     return models
 
 
@@ -137,10 +128,14 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model, list[st
                 f"Unknown crop '{crop_slug}'. Available crops: {', '.join(available_crops())}"
             )
         model_path = MODEL_BY_CROP[crop_slug]
+        labels = _load_class_names(crop_slug)
+        
+        # Lazily/dynamically ensure the crop model h5 file exists on disk
+        _ensure_single_model_exists(f"plant_disease_{crop_slug}.h5", len(labels))
+        
         if crop_slug not in MODEL_CACHE:
             MODEL_CACHE[crop_slug] = tf.keras.models.load_model(model_path)
         model = MODEL_CACHE[crop_slug]
-        labels = _load_class_names(crop_slug)
         model_class_count = int(model.output_shape[-1])
         if len(labels) != model_class_count:
             raise ValueError(
