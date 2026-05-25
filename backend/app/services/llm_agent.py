@@ -8,26 +8,16 @@ import json
 import logging
 from google import genai
 from typing import Dict, Any, Optional
+from app.utils.secrets import get_secret
 
 
 GEMINI_MODEL_NAME = "gemini-1.5-flash-002"
 
 def get_gemini_key():
-    # Attempt to load from environment first
-    key = os.getenv("GEMINI_API_KEY")
+    # Prefer secret store; fall back to environment variable
+    key = get_secret("GEMINI_API_KEY")
     if key:
         return key
-
-    # Try reading from mobile app .env as a fallback for this specific setup
-    try:
-        env_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "mobile_app", ".env")
-        if os.path.exists(env_path):
-            with open(env_path, "r") as f:
-                for line in f:
-                    if line.startswith("GEMINI_API_KEY="):
-                        return line.split("=")[1].strip().strip('"').strip("'")
-    except Exception as e:
-        logging.exception("Failed to read GEMINI_API_KEY from mobile .env fallback: %s", e)
     return None
 
 def generate_compound_knowledge(compound_name: str) -> Optional[Dict[str, Any]]:

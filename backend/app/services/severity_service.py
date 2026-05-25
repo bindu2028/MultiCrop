@@ -6,25 +6,15 @@ Migrated to google-genai SDK (replaces deprecated google-generativeai).
 import os
 import json
 import logging
+from app.utils.secrets import get_secret
 
 
 GEMINI_MODEL_NAME = "gemini-1.5-flash-002"
 
 
 def _get_api_key() -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    if api_key:
-        return api_key
-    try:
-        env_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "mobile_app", ".env")
-        if os.path.exists(env_path):
-            with open(env_path, "r") as f:
-                for line in f:
-                    if line.startswith("GEMINI_API_KEY="):
-                        return line.split("=")[1].strip().strip('"').strip("'")
-    except Exception as e:
-        logging.exception("Failed to read GEMINI_API_KEY from mobile .env fallback: %s", e)
-    return os.getenv("GEMINI_API_KEY", "")
+    # Use the centralized secret retrieval helper. Returns empty string if not found.
+    return get_secret("GEMINI_API_KEY")
 
 
 def estimate_severity(image_bytes: bytes, disease_name: str) -> dict:

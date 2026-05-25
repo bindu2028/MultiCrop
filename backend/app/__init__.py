@@ -11,6 +11,22 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import os
+
+try:
+    # Optional: Sentry for error reporting
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+except Exception:
+    sentry_sdk = None
+
+try:
+    # Optional: Prometheus metrics
+    from prometheus_client import make_wsgi_app
+    from werkzeug.middleware.dispatcher import DispatcherMiddleware
+except Exception:
+    make_wsgi_app = None
+    DispatcherMiddleware = None
 
 
 def create_app() -> Flask:
@@ -46,6 +62,12 @@ def create_app() -> Flask:
     # Initialize JWT manager
     jwt = JWTManager(app)
 
+    # Initialize Sentry if DSN configured
+    sentry_dsn = os.getenv("SENTRY_DSN")
+    if sentry_dsn and sentry_sdk is not None:
+        sentry_sdk.init(dsn=sentry_dsn, integrations=[FlaskIntegration()], traces_sample_rate=0.0)
+
+
     # Register blueprints
     app.register_blueprint(predict_bp)
 
@@ -68,4 +90,10 @@ def create_app() -> Flask:
         from app.services.user_service import bootstrap_admin_user
         bootstrap_admin_user()
     
+    # Mount Prometheus metrics at /metrics if prometheus_client available
+    if make_wsgi_app is not None and DispatcherMiddleware is not None:
+        app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+            '/metrics': make_wsgi_app()
+        })
+
     return app

@@ -7,7 +7,7 @@ This PR finalizes dependency remediation by regenerating `requirements.lock` and
 Files included
 --------------
 - `backend/requirements.lock`
-- `backend/requirements-dev.lock`
+- `backend/requirements-dev.lock`           
 - `backend/requirements.in` (toplevel inputs)
 - `backend/requirements-dev.in` (dev inputs)
 - `backend/scripts/regenerate_lock.sh` (helper for future regenerations)
