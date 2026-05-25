@@ -15,7 +15,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      textTheme: GoogleFonts.interTextTheme(),
+      textTheme: GoogleFonts.plusJakartaSansTextTheme(),
       scaffoldBackgroundColor: const Color(0xFFF7F8F2),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFFF7F8F2),
