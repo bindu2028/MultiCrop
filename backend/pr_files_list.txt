@@ -1,0 +1,10 @@
+Files included in this PR:
+- backend/requirements.lock
+- backend/requirements-dev.lock
+- backend/requirements.in
+- backend/requirements-dev.in
+- backend/scripts/regenerate_lock.sh
+
+Run tests locally before pushing:
+- pytest -q
+- pip-audit -r backend/requirements.lock
