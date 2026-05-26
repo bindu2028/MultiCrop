@@ -9,7 +9,7 @@ import logging
 from app.utils.secrets import get_secret
 
 
-GEMINI_MODEL_NAME = "gemini-1.5-flash-002"
+GEMINI_MODEL_NAME = "gemini-1.5-flash"
 
 
 def _get_api_key() -> str:

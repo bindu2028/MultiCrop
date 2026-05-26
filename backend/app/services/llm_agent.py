@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 from app.utils.secrets import get_secret
 
 
-GEMINI_MODEL_NAME = "gemini-1.5-flash-002"
+GEMINI_MODEL_NAME = "gemini-1.5-flash"
 
 def get_gemini_key():
     # Prefer secret store; fall back to environment variable

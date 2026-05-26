@@ -51,27 +51,49 @@ class AuthService {
     }
   }
 
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      String payload = parts[1];
+      
+      // Standard base64 padding normalization
+      int remainder = payload.length % 4;
+      if (remainder == 2) {
+        payload += '==';
+      } else if (remainder == 3) {
+        payload += '=';
+      }
+      
+      final decodedBytes = base64Url.decode(payload);
+      final decodedString = utf8.decode(decodedBytes);
+      final map = jsonDecode(decodedString) as Map<String, dynamic>;
+      if (map.containsKey('exp')) {
+        final exp = map['exp'] as int;
+        final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+        // Expiry check with a 30-second clock skew buffer
+        return DateTime.now().isAfter(expiry.subtract(const Duration(seconds: 30)));
+      }
+    } catch (_) {
+      return true;
+    }
+    return true;
+  }
+
   /// Returns a valid access token, refreshing if the stored one has expired.
   /// Returns null if the user is not logged in or if refresh fails.
   Future<String?> getValidAccessToken() async {
     final session = await getSession();
     if (session == null) return null;
 
-    // Try a lightweight /auth/me call to check validity
-    final testResp = await http.get(
-      Uri.parse('${_baseUrl()}/auth/me'),
-      headers: {'Authorization': 'Bearer ${session.accessToken}'},
-    );
-
-    if (testResp.statusCode == 200) return session.accessToken;
-
-    // Token expired — try to refresh
-    if (testResp.statusCode == 401) {
-      final newAccess = await _refreshAccessToken(session.refreshToken);
-      return newAccess;
+    // Check if the token is still valid locally without hitting the server
+    if (!_isTokenExpired(session.accessToken)) {
+      return session.accessToken;
     }
 
-    return null;
+    // Token expired — try to refresh
+    final newAccess = await _refreshAccessToken(session.refreshToken);
+    return newAccess;
   }
 
   /// Login: calls backend /auth/login with username (derived from email) + password.

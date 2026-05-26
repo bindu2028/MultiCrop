@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from app.config import Config
 
-GEMINI_MODEL_NAME = "gemini-1.5-flash-002"
+GEMINI_MODEL_NAME = "gemini-1.5-flash"
 
 
 def _get_gemini_key() -> str | None:
