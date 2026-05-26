@@ -15,10 +15,19 @@ class CompoundDetailScreen extends StatelessWidget {
     final hasPubchem = pubchem != null;
     final hasKnowledge = data['found_in_knowledge_base'] == true;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(data['name'].toString().toUpperCase()),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.apply(
+          fontFamily: 'Times New Roman',
+        ),
       ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            data['name'].toString().toUpperCase(),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -91,6 +100,7 @@ class CompoundDetailScreen extends StatelessWidget {
           const SizedBox(height: 32),
         ],
       ),
+    ),
     );
   }
 
