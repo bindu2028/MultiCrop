@@ -10,6 +10,7 @@ from app.services.compound_service import (
 )
 from app.utils.pubchem import (
     get_cids_for_name,
+    get_cids_for_smiles,
     get_full_properties_for_cid,
     get_synonyms_for_cid,
     get_description_for_cid,
@@ -129,20 +130,36 @@ def get_compound_full(name: str):
         "render_3d": True, # Molecular weight gatekeeper
     }
     
-    # 1. Check local knowledge base
-    kb = get_compound_knowledge(name)
-    if kb:
-        result.update(kb)
-        result["found_in_knowledge_base"] = True
-    else:
-        # 1.5. Dynamic LLM Fallback
-        llm_kb = generate_compound_knowledge(name)
-        if llm_kb:
-            result.update(llm_kb)
+    # 1. Check local knowledge base (skip for raw SMILES since keys are common names)
+    name_clean = name.strip()
+    is_smiles = False
+    if " " not in name_clean:
+        if any(char in name_clean for char in ["=", "#", "(", ")", "[", "]", "@", "/"]):
+            is_smiles = True
+        elif len(name_clean) >= 6 and all(c in "abcdefgiklmnoprstuyz0123456789=#()[]@/+- \t\n\r" for c in name_clean.lower()):
+            is_smiles = True
+
+    if not is_smiles:
+        kb = get_compound_knowledge(name)
+        if kb:
+            result.update(kb)
             result["found_in_knowledge_base"] = True
+        else:
+            # 1.5. Dynamic LLM Fallback
+            llm_kb = generate_compound_knowledge(name)
+            if llm_kb:
+                result.update(llm_kb)
+                result["found_in_knowledge_base"] = True
     
     # 2. Always enrich with PubChem data
-    cids = get_cids_for_name(name)
+    cids = []
+    if is_smiles:
+        cids = get_cids_for_smiles(name_clean)
+        if not cids:
+            cids = get_cids_for_name(name_clean)
+    else:
+        cids = get_cids_for_name(name_clean)
+
     if cids:
         cid = cids[0]
         props = get_full_properties_for_cid(cid)
@@ -153,6 +170,25 @@ def get_compound_full(name: str):
         result["description"] = desc
         result["structure_image"] = get_structure_image_url(cid)
         result["found_in_pubchem"] = True
+        
+        # If it was entered as a SMILES, dynamically map the common name synonyms
+        # back to our local curated knowledge base or generate via LLM
+        if is_smiles:
+            kb_found = False
+            for s in syns[:10]:
+                kb = get_compound_knowledge(s)
+                if kb:
+                    result.update(kb)
+                    result["found_in_knowledge_base"] = True
+                    kb_found = True
+                    break
+            
+            if not kb_found and syns:
+                # Dynamic LLM fallback using the primary resolved common name
+                llm_kb = generate_compound_knowledge(syns[0])
+                if llm_kb:
+                    result.update(llm_kb)
+                    result["found_in_knowledge_base"] = True
         
         # Atom-Count / Molecular Weight Gatekeeping
         try:

@@ -265,3 +265,16 @@ def get_3d_verified_similar_compounds(cid: int, target_smiles: str, limit: int =
     except Exception as e:
         print(f"PubChem Similarity Error: {e}")
         return []
+
+
+def get_cids_for_smiles(smiles: str) -> List[int]:
+    """Fetches PubChem CIDs directly from a SMILES structure string."""
+    try:
+        url = f"{BASE}/compound/smiles/{requests.utils.quote(smiles)}/cids/JSON"
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        ids = data.get("IdentifierList", {}).get("CID", [])
+        return ids if isinstance(ids, list) else []
+    except Exception:
+        return []
