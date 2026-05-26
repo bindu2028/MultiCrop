@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../widgets/molecular_3d_viewer.dart';
 import '../services/compound_api.dart';
 import 'compound_screen.dart';
@@ -27,80 +28,92 @@ class CompoundDetailScreen extends StatelessWidget {
             data['name'].toString().toUpperCase(),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-        ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 1. Header Card (Class & Tags)
-          if (hasKnowledge) _buildHeaderCard(context),
-
-          const SizedBox(height: 16),
-
-          // 2. Overview (Traditional Use)
-          if (hasKnowledge && data['traditional_use'] != null)
-            _buildSectionCard(
-              title: 'Overview',
-              icon: Icons.lightbulb_outline,
-              backgroundColor: const Color(0xFFFFF8E1), // Light amber
-              content: Text(
-                data['traditional_use'],
-                style: const TextStyle(fontSize: 15, height: 1.4, color: Color(0xFF4E342E)),
-              ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => _shareCompound(context),
+              tooltip: 'Share Compound Summary',
             ),
+          ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // 1. Header Card (Class & Tags)
+            if (hasKnowledge) _buildHeaderCard(context),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 3. Technical Description (Expandable)
-          if (data['description'] != null)
-            _buildExpandableDescription(data['description']),
+            // 2. Overview (Traditional Use)
+            if (hasKnowledge && data['traditional_use'] != null)
+              _buildSectionCard(
+                title: 'Overview',
+                icon: Icons.lightbulb_outline,
+                backgroundColor: const Color(0xFFFFF8E1), // Light amber
+                content: Text(
+                  data['traditional_use'],
+                  style: const TextStyle(fontSize: 15, height: 1.4, color: Color(0xFF4E342E)),
+                ),
+              ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 4. Structure Image (3D or 2D)
-          if (hasPubchem && pubchem['cid'] != null && data['render_3d'] == true)
-            _build3DImageCard(pubchem['cid'])
-          else if (data['structure_image'] != null)
-            _buildImageCard(isTooComplex: data['render_3d'] == false),
+            // 3. Technical Description (Expandable)
+            if (data['description'] != null)
+              _buildExpandableDescription(data['description']),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 5. Source Organisms
-          if (hasKnowledge && data['source_organisms'] != null)
-            _buildSourceCard(context),
+            // 4. Structure Image (3D or 2D)
+            if (hasPubchem && pubchem['cid'] != null && data['render_3d'] == true)
+              _build3DImageCard(pubchem['cid'])
+            else if (data['structure_image'] != null)
+              _buildImageCard(isTooComplex: data['render_3d'] == false),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 6. Medicinal Remedy
-          if (hasKnowledge && data['medicinal_remedy'] != null)
-            _buildRemedyCard(context),
+            // 5. Source Organisms
+            if (hasKnowledge && data['source_organisms'] != null)
+              _buildSourceCard(context),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 7. Chemical Properties
-          if (hasPubchem) _buildPropertiesCard(context, pubchem),
+            // 6. Medicinal Remedy & Safety Guide
+            if (hasKnowledge && data['medicinal_remedy'] != null)
+              _buildRemedyCard(context),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 8. SMILES
-          if (hasPubchem && (pubchem['canonical_smiles'] != null || pubchem['isomeric_smiles'] != null))
-            _buildSmilesCard(context, pubchem['canonical_smiles'] ?? pubchem['isomeric_smiles']),
+            // 7. Chemical Properties
+            if (hasPubchem) _buildPropertiesCard(context, pubchem),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // 9. Synonyms
-          if (data['synonyms'] != null && (data['synonyms'] as List).isNotEmpty)
-            _buildSynonymsCard(context, data['synonyms'] as List),
-            
-          const SizedBox(height: 16),
-            
-          // 10. Similar Compounds
-          if (data['similar_compounds'] != null && (data['similar_compounds'] as List).isNotEmpty)
-            _buildSimilarCompoundsList(context, data['similar_compounds'] as List),
+            // 8. SMILES
+            if (hasPubchem && (pubchem['canonical_smiles'] != null || pubchem['isomeric_smiles'] != null))
+              _buildSmilesCard(context, pubchem['canonical_smiles'] ?? pubchem['isomeric_smiles']),
 
-          const SizedBox(height: 32),
-        ],
+            const SizedBox(height: 16),
+
+            // 9. Synonyms
+            if (data['synonyms'] != null && (data['synonyms'] as List).isNotEmpty)
+              _buildSynonymsCard(context, data['synonyms'] as List),
+              
+            const SizedBox(height: 16),
+
+            // 9.5. Academic & Research Portals
+            _buildAcademicSearchCard(context),
+
+            const SizedBox(height: 16),
+              
+            // 10. Similar Compounds
+            if (data['similar_compounds'] != null && (data['similar_compounds'] as List).isNotEmpty)
+              _buildSimilarCompoundsList(context, data['similar_compounds'] as List),
+
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -293,45 +306,237 @@ class CompoundDetailScreen extends StatelessWidget {
 
   Widget _buildRemedyCard(BuildContext context) {
     final rem = data['medicinal_remedy'] as Map<String, dynamic>;
-    return _buildSectionCard(
-      title: 'Medicinal Remedy',
-      icon: Icons.medical_services_outlined,
-      backgroundColor: const Color(0xFFE8EAF6), // Light indigo tint
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow('Primary Use', rem['primary_use']),
-          if (rem['conditions_treated'] != null)
-            _buildInfoRow('Conditions', (rem['conditions_treated'] as List).join(', ')),
-          _buildInfoRow('How Used', rem['how_used']),
-          if (rem['research_notes'] != null)
-            _buildInfoRow('Research', rem['research_notes']),
-          if (rem['caution'] != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3E0),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFFFCC80)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.warning_amber_rounded, size: 20, color: Color(0xFFE65100)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Caution: ${rem['caution']}',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFFBF360C), fontWeight: FontWeight.w500),
-                    ),
+    
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.medical_services_outlined, size: 20, color: Color(0xFF424242)),
+                SizedBox(width: 8),
+                Text('Medicinal Remedy & Safety Guide', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // 1. Primary Use
+            _buildRemedyField('Primary Application', rem['primary_use'] ?? 'N/A', Colors.indigo.shade800),
+            
+            // 2. Conditions Treated as Chips
+            if (rem['conditions_treated'] != null) ...[
+              const SizedBox(height: 12),
+              const Text('Conditions Addressed', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 12)),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: (rem['conditions_treated'] as List).map((c) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8EAF6),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFC5CAE9)),
                   ),
-                ],
+                  child: Text(c.toString(), style: const TextStyle(fontSize: 12, color: Color(0xFF3F51B5), fontWeight: FontWeight.bold)),
+                )).toList(),
               ),
+            ],
+            
+            // 3. How Used / Dosage
+            if (rem['how_used'] != null) ...[
+              const SizedBox(height: 16),
+              const Text('Safe Usage & Dosage Guidance', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 12)),
+              const SizedBox(height: 6),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFC8E6C9)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.info_outline, size: 18, color: Color(0xFF2E7D32)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        rem['how_used'],
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF1B5E20), height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // 4. Research Notes
+            if (rem['research_notes'] != null) ...[
+              const SizedBox(height: 16),
+              _buildRemedyField('Scientific Insights', rem['research_notes'], Colors.black87),
+            ],
+            
+            // 5. Caution / Drug Interactions (Alert Banner)
+            if (rem['caution'] != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFFFCC80)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, size: 20, color: Color(0xFFE65100)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'DRUG INTERACTIONS & CAUTION',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFE65100)),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            rem['caution'],
+                            style: const TextStyle(fontSize: 13, color: Color(0xFFBF360C), height: 1.4, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemedyField(String label, String value, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 12)),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(fontSize: 14, color: textColor, height: 1.4, fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+
+  void _shareCompound(BuildContext context) {
+    final name = data['name'].toString().toUpperCase();
+    final clazz = data['compound_class'] ?? 'Natural Compound';
+    final sourceList = data['source_organisms'] != null
+        ? (data['source_organisms'] as List).join('\n• ')
+        : 'N/A';
+    final remedy = data['medicinal_remedy'] as Map<String, dynamic>?;
+    final primaryUse = remedy != null ? remedy['primary_use'] : 'N/A';
+    final caution = remedy != null ? remedy['caution'] : null;
+
+    final summary = '🌿 NATURAL COMPOUND PROFILE: $name\n'
+        '🧪 Class: $clazz\n'
+        '🌱 Source Organisms:\n• $sourceList\n\n'
+        '🩺 Primary Use: $primaryUse\n'
+        '${caution != null ? "⚠️ Caution: $caution\n" : ""}'
+        '🔬 Decoded using Compound Encyclopedia';
+
+    Clipboard.setData(ClipboardData(text: summary));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Formatted Compound Summary copied to clipboard!'),
+        backgroundColor: Color(0xFF2E7D32),
+      ),
+    );
+  }
+
+  Widget _buildAcademicSearchCard(BuildContext context) {
+    final pubchem = data['pubchem'] as Map<String, dynamic>?;
+    final cid = pubchem != null ? pubchem['cid'] : null;
+    
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.menu_book_outlined, size: 20, color: Color(0xFF424242)),
+                SizedBox(width: 8),
+                Text('Academic & Research Portals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Quickly search global scientific databases for detailed chemical studies, journals, and clinical trials:',
+              style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildSearchChip(
+                  context, 
+                  'PubMed', 
+                  'https://pubmed.ncbi.nlm.nih.gov/?term=${Uri.encodeComponent(data['name'])}',
+                  Colors.blue.shade50,
+                  Colors.blue.shade800,
+                ),
+                _buildSearchChip(
+                  context, 
+                  'Google Scholar', 
+                  'https://scholar.google.com/scholar?q=${Uri.encodeComponent(data['name'])}',
+                  Colors.orange.shade50,
+                  Colors.orange.shade900,
+                ),
+                _buildSearchChip(
+                  context, 
+                  'PubChem Portal', 
+                  cid != null 
+                      ? 'https://pubchem.ncbi.nlm.nih.gov/compound/$cid' 
+                      : 'https://pubchem.ncbi.nlm.nih.gov/#query=${Uri.encodeComponent(data['name'])}',
+                  Colors.teal.shade50,
+                  Colors.teal.shade800,
+                ),
+              ],
             ),
           ],
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildSearchChip(BuildContext context, String label, String url, Color bgColor, Color textColor) {
+    return ActionChip(
+      label: Text(label),
+      backgroundColor: bgColor,
+      labelStyle: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 12),
+      side: BorderSide(color: textColor.withOpacity(0.2)),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AppWebViewScreen(title: label, url: url),
+          ),
+        );
+      },
     );
   }
 
@@ -546,3 +751,57 @@ class CompoundDetailScreen extends StatelessWidget {
   }
 }
 
+class AppWebViewScreen extends StatefulWidget {
+  final String title;
+  final String url;
+
+  const AppWebViewScreen({super.key, required this.title, required this.url});
+
+  @override
+  State<AppWebViewScreen> createState() => _AppWebViewScreenState();
+}
+
+class _AppWebViewScreenState extends State<AppWebViewScreen> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) {
+            if (mounted) setState(() => _isLoading = true);
+          },
+          onPageFinished: (_) {
+            if (mounted) setState(() => _isLoading = false);
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.url));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _controller.reload(),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          WebViewWidget(controller: _controller),
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator()),
+        ],
+      ),
+    );
+  }
+}
