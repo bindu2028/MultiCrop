@@ -94,18 +94,6 @@ def create_alias():
     return jsonify({"alias": alias.to_dict()}), 201
 
 
-@module2_bp.route("/test-pubchem", methods=["GET"])
-def test_pubchem():
-    from app.utils.pubchem import get_cids_for_smiles, get_cids_for_name
-    smiles = "C1=CC(=C(C=C1C2=C(C(=O)C3=C(O2)C=C(C=C3O)O)O)O)O"
-    cids_smiles = get_cids_for_smiles(smiles)
-    cids_name = get_cids_for_name("quercetin")
-    return jsonify({
-        "cids_smiles": cids_smiles,
-        "cids_name": cids_name,
-    })
-
-
 @module2_bp.route("/compound/<name>", methods=["GET"])
 @jwt_required()
 def get_compound_full(name: str):
