@@ -244,11 +244,9 @@ def is_valid_plant_image(image_bytes: bytes) -> tuple[bool, str, bool]:
 
     except Exception as e:
         print(f"[Gemini Vision Gatekeeper] Error: {e}")
-        # Gemini failed — use heuristic result as fallback
-        if is_leaf_heuristic:
-            return True, "Passed heuristic fallback", False
-        else:
-            return False, "This image does not look like a plant leaf. Please capture a clear photo of a single plant leaf.", False
+        # Gemini failed — print warning and gracefully let the request proceed to the CNN model!
+        # This prevents transient Gemini outages or leaked key blocks from rejecting valid users' leaves.
+        return True, "Passed resilient fallback (Gemini down)", False
 
 
 def verify_crop_match(image_bytes: bytes, selected_crop: str) -> tuple[bool, str]:
