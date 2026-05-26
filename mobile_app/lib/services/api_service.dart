@@ -114,7 +114,7 @@ class ApiService {
           ),
         );
       return request.send().timeout(
-        const Duration(seconds: 30),
+        const Duration(seconds: 90),
         onTimeout: () => throw Exception('Prediction request timed out. Please check your connection and try again.'),
       );
     }
