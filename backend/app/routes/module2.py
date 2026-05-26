@@ -110,7 +110,26 @@ def get_compound_full(name: str):
     name_lower = name.strip().lower()
     cached = CompoundCache.query.filter_by(query_name=name_lower).first()
     if cached:
-        return jsonify(json.loads(cached.json_data))
+        cached_data = json.loads(cached.json_data)
+        # Self-healing Cache: If the query is a SMILES string but the cached entry has no PubChem data,
+        # it might have been cached as a failure during older GET requests. Clear the cache and re-fetch!
+        is_smiles = False
+        name_clean = name.strip()
+        if " " not in name_clean:
+            if any(char in name_clean for char in ["=", "#", "(", ")", "[", "]", "@", "/"]):
+                is_smiles = True
+            elif len(name_clean) >= 6 and all(c in "abcdefgiklmnoprstuyz0123456789=#()[]@/+- \t\n\r" for c in name_clean.lower()):
+                is_smiles = True
+                
+        if is_smiles and not cached_data.get("found_in_pubchem"):
+            try:
+                db.session.delete(cached)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+        else:
+            return jsonify(cached_data)
+
 
     result = {
         "name": name,
