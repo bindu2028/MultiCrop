@@ -268,10 +268,10 @@ def get_3d_verified_similar_compounds(cid: int, target_smiles: str, limit: int =
 
 
 def get_cids_for_smiles(smiles: str) -> List[int]:
-    """Fetches PubChem CIDs directly from a SMILES structure string."""
+    """Fetches PubChem CIDs directly from a SMILES structure string using HTTP POST."""
     try:
-        url = f"{BASE}/compound/smiles/{requests.utils.quote(smiles)}/cids/JSON"
-        resp = requests.get(url, timeout=10)
+        url = f"{BASE}/compound/smiles/cids/JSON"
+        resp = requests.post(url, data={"smiles": smiles}, timeout=10)
         resp.raise_for_status()
         data = resp.json()
         ids = data.get("IdentifierList", {}).get("CID", [])
