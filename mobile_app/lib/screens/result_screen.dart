@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import '../models/prediction_response.dart';
 import 'disease_info_screen.dart';
 import 'chat_screen.dart';
-import 'disease_simulator_screen.dart';
 import '../widgets/fade_slide.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -704,38 +703,17 @@ class _ResultScreenState extends State<ResultScreen> {
             SizedBox(height: 16),
             FadeSlide(
               delay: const Duration(milliseconds: 400),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _ModernActionButton(
-                      icon: Icons.info_outline,
-                      label: 'Learn More',
-                      color: Color(0xFF42A5F5),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              DiseaseInfoScreen(diseaseName: result.disease),
-                        ),
-                      ),
-                    ),
+              child: _ModernActionButton(
+                icon: Icons.info_outline,
+                label: 'Learn More',
+                color: Color(0xFF42A5F5),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        DiseaseInfoScreen(diseaseName: result.disease),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: _ModernActionButton(
-                      icon: Icons.timeline_rounded,
-                      label: 'Progression',
-                      color: Color(0xFF81C784),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              DiseaseSimulatorScreen(diseaseName: result.disease),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
