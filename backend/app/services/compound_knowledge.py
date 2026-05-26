@@ -307,7 +307,25 @@ COMPOUND_KNOWLEDGE = {
             "caution": "Can cause ototoxicity (hearing loss) and nephrotoxicity (kidney damage)."
         },
         "bioactivity": ["Antibiotic", "Protein synthesis inhibitor"]
-    }
+    },
+        "gingerol": {
+        "common_name": "Gingerol",
+        "compound_class": "Phenolic Ketone",
+        "source_organisms": [
+            "Fresh Ginger rhizome (Zingiber officinale)"
+        ],
+        "source_type": "Plant",
+        "traditional_use": "Used in Ayurveda and Traditional Chinese Medicine for warming the body, soothing nausea, and aiding digestion.",
+        "medicinal_remedy": {
+            "primary_use": "Natural anti-nausea and digestive aid",
+            "conditions_treated": ["Nausea / Motion sickness", "Indigestion", "Osteoarthritis pain", "Muscle soreness"],
+            "how_used": "Consumed naturally in fresh ginger root, teas, or taken as a 1000 mg supplement daily.",
+            "research_notes": "Stimulates digestive saliva and blocks brain signals that trigger vomiting, while acting as a natural anti-inflammatory.",
+            "caution": "High doses may cause mild heartburn or interact with blood-thinning medications."
+        },
+        "bioactivity": ["Anti-nausea", "Anti-inflammatory", "Antioxidant", "Gastroprotective"]
+    },
+
 }
 
 def get_compound_knowledge(name: str) -> dict | None:
