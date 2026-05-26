@@ -95,7 +95,15 @@ class AuthService {
       body: jsonEncode({'username': username, 'password': password}),
     );
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {
+      if (response.statusCode >= 500) {
+        throw Exception('Server is temporarily offline (Error ${response.statusCode}). Please try again in a moment.');
+      }
+      throw Exception('Failed to connect to server. Please check your internet connection.');
+    }
 
     if (response.statusCode != 200) {
       throw Exception((body['error'] ?? 'Login failed.').toString());
@@ -149,7 +157,15 @@ class AuthService {
       body: jsonEncode({'username': username, 'password': password}),
     );
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {
+      if (response.statusCode >= 500) {
+        throw Exception('Server is temporarily offline (Error ${response.statusCode}). Please try again in a moment.');
+      }
+      throw Exception('Failed to connect to server. Please check your internet connection.');
+    }
 
     if (response.statusCode != 201) {
       throw Exception((body['error'] ?? 'Registration failed.').toString());
