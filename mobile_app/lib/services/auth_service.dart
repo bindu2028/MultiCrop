@@ -86,8 +86,8 @@ class AuthService {
       throw Exception('Password must be at least 6 characters.');
     }
 
-    // Backend uses username, not email — use the part before @
-    final username = email.split('@').first.trim();
+    // Always use the lowercase email as the username for zero-collision consistency
+    final username = email.trim().toLowerCase();
 
     final response = await http.post(
       Uri.parse('${_baseUrl()}/auth/login'),
@@ -103,7 +103,18 @@ class AuthService {
 
     final access = body['access_token'] as String;
     final refresh = body['refresh_token'] as String;
-    final name = username;
+    
+    // Derive a clean, capitalized display name from the email prefix
+    String name = username;
+    if (name.contains('@')) {
+      name = name.split('@').first;
+    }
+    name = name.replaceAll('_', ' ').replaceAll('.', ' ');
+    name = name.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ').trim();
+    if (name.isEmpty) name = 'User';
 
     final session = AuthSession(
       name: name,
@@ -129,7 +140,8 @@ class AuthService {
       throw Exception('Password must be at least 6 characters.');
     }
 
-    final username = name.trim().replaceAll(' ', '_').toLowerCase();
+    // Always use the lowercase email as the username for zero-collision consistency
+    final username = email.trim().toLowerCase();
 
     final response = await http.post(
       Uri.parse('${_baseUrl()}/auth/register'),
