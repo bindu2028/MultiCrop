@@ -24,7 +24,7 @@ DISEASE_EXPLANATION_BY_DISEASE = {
     "Esca (Black Measles)": "This vine disease weakens grape plants and causes leaf discoloration.",
     "Healthy": "The leaf appears healthy, with no strong disease signs right now.",
     "Leaf Blight": "A leaf infection is causing fast browning and drying of tissue.",
-    "Leaf Scorch": "Leaf edges are drying or burning, often from stress or imbalance.",
+    "Leaf Scorch": "A fungal infection causing dark purple spots that merge and dry out the leaf margins, creating a scorched look.",
     "Late Blight": "A serious fast-spreading disease is attacking the leaf in humid conditions.",
     "Northern Leaf Blight": "A fungal disease is creating long gray-brown streaks on corn leaves.",
     "Powdery Mildew": "A white powder-like fungus is growing on the leaf surface.",
