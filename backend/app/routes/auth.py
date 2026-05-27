@@ -1,9 +1,18 @@
 from datetime import timedelta
 
 from flask import Blueprint, jsonify, request, current_app
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
-from app.services.user_service import verify_credentials, create_user
+from app.models import db
+from app.models.token_blocklist import TokenBlocklist
+from app.services.user_service import (
+    verify_credentials,
+    create_user,
+    get_user_by_username,
+    check_login_allowed,
+    record_failed_attempt,
+    record_successful_login
+)
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -17,8 +26,24 @@ def login():
     if not username or not password:
         return jsonify({"error": "Missing username or password"}), 400
 
-    if not verify_credentials(username, password):
+    user = get_user_by_username(username)
+    if not user:
         return jsonify({"error": "Invalid credentials"}), 401
+
+    # Check if user is locked out
+    allowed, lock_message = check_login_allowed(user)
+    if not allowed:
+        return jsonify({"error": lock_message}), 403
+
+    # Check password
+    if not user.check_password(password):
+        err_msg = record_failed_attempt(user)
+        # Lockout status check
+        status_code = 403 if user.locked_until else 401
+        return jsonify({"error": err_msg}), status_code
+
+    # Reset attempts on successful log in
+    record_successful_login(user)
 
     access_expires = timedelta(seconds=current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES", 3600))
     refresh_expires = timedelta(seconds=current_app.config.get("JWT_REFRESH_TOKEN_EXPIRES", 604800))
@@ -27,6 +52,19 @@ def login():
     refresh = create_refresh_token(identity=username, expires_delta=refresh_expires)
 
     return jsonify({"access_token": access, "refresh_token": refresh}), 200
+
+
+@auth_bp.post("/logout")
+@jwt_required()
+def logout():
+    jwt_data = get_jwt()
+    jti = jwt_data["jti"]
+    token_type = jwt_data["type"]
+    
+    db.session.add(TokenBlocklist(jti=jti, type=token_type))
+    db.session.commit()
+    
+    return jsonify({"message": "Successfully logged out"}), 200
 
 
 @auth_bp.post("/register")
@@ -40,9 +78,9 @@ def register():
     if len(password) < 6:
         return jsonify({"error": "Password must be at least 6 characters"}), 400
 
-    user = create_user(username, password)
+    user = create_user(username, password, email=username)
     if not user:
-        return jsonify({"error": "Username already exists"}), 409
+        return jsonify({"error": "User already exists"}), 409
 
     access_expires = timedelta(seconds=current_app.config.get("JWT_ACCESS_TOKEN_EXPIRES", 3600))
     refresh_expires = timedelta(seconds=current_app.config.get("JWT_REFRESH_TOKEN_EXPIRES", 604800))

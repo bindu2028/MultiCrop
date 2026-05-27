@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../widgets/molecular_3d_viewer.dart';
 import '../services/compound_api.dart';
-import 'compound_screen.dart';
+import '../data/herb_library_data.dart';
 
 class CompoundDetailScreen extends StatelessWidget {
   final Map<String, dynamic> data;
@@ -15,6 +15,107 @@ class CompoundDetailScreen extends StatelessWidget {
     final pubchem = data['pubchem'] as Map<String, dynamic>?;
     final hasPubchem = pubchem != null;
     final hasKnowledge = data['found_in_knowledge_base'] == true;
+
+    // Look up matching HerbItem
+    final herb = kHerbLibraryData.firstWhere(
+      (h) => h.activeCompounds.any((c) => c.toLowerCase() == data['name'].toString().toLowerCase()),
+      orElse: () => const HerbItem(
+        name: '',
+        scientificName: '',
+        emoji: '🌿',
+        description: '',
+        soilPh: 6.5,
+        waterNeeds: 'Medium',
+        sunExposure: 'Partial Shade',
+        tempRange: '18°C - 28°C',
+        harvestTime: '90 Days',
+        geographicalRegion: 'Temperate Regions Globally',
+        activeCompounds: [],
+        traditionalRemedies: [],
+      ),
+    );
+
+    // Let's refine fallback cultivation stats dynamically if herb name is empty
+    HerbItem displayHerb = herb;
+    if (herb.name.isEmpty) {
+      final name = data['name'].toString().toLowerCase();
+      if (name.contains('resveratrol')) {
+        displayHerb = const HerbItem(
+          name: 'Grape Skin',
+          scientificName: 'Vitis vinifera',
+          emoji: '🍇',
+          description: '',
+          soilPh: 6.5,
+          waterNeeds: 'Medium',
+          sunExposure: 'Full Sun',
+          tempRange: '15°C - 28°C',
+          harvestTime: '120 - 150 Days',
+          geographicalRegion: 'Native to Mediterranean region',
+          activeCompounds: [],
+          traditionalRemedies: [],
+        );
+      } else if (name.contains('berberine')) {
+        displayHerb = const HerbItem(
+          name: 'Goldenseal / Barberry',
+          scientificName: 'Hydrastis canadensis',
+          emoji: '🌿',
+          description: '',
+          soilPh: 5.5,
+          waterNeeds: 'High',
+          sunExposure: 'Full Shade',
+          tempRange: '10°C - 22°C',
+          harvestTime: '3 - 5 Years',
+          geographicalRegion: 'Native to Eastern North America',
+          activeCompounds: [],
+          traditionalRemedies: [],
+        );
+      } else if (name.contains('quercetin')) {
+        displayHerb = const HerbItem(
+          name: 'Capers / Red Onions',
+          scientificName: 'Capparis spinosa',
+          emoji: '🧅',
+          description: '',
+          soilPh: 7.0,
+          waterNeeds: 'Low',
+          sunExposure: 'Full Sun',
+          tempRange: '18°C - 35°C',
+          harvestTime: '90 - 120 Days',
+          geographicalRegion: 'Native to Mediterranean region',
+          activeCompounds: [],
+          traditionalRemedies: [],
+        );
+      } else if (name.contains('lycopene')) {
+        displayHerb = const HerbItem(
+          name: 'Tomatoes',
+          scientificName: 'Solanum lycopersicum',
+          emoji: '🍅',
+          description: '',
+          soilPh: 6.5,
+          waterNeeds: 'Medium',
+          sunExposure: 'Full Sun',
+          tempRange: '21°C - 29°C',
+          harvestTime: '60 - 80 Days',
+          geographicalRegion: 'Native to South America',
+          activeCompounds: [],
+          traditionalRemedies: [],
+        );
+      } else if (name.contains('lovastatin')) {
+        displayHerb = const HerbItem(
+          name: 'Oyster Mushrooms',
+          scientificName: 'Pleurotus ostreatus',
+          emoji: '🍄',
+          description: '',
+          soilPh: 6.5,
+          waterNeeds: 'Medium',
+          sunExposure: 'Full Shade',
+          tempRange: '15°C - 20°C',
+          harvestTime: '20 - 30 Days',
+          geographicalRegion: 'Native to Temperate Regions Globally',
+          activeCompounds: [],
+          traditionalRemedies: [],
+        );
+      }
+    }
 
     return Theme(
       data: Theme.of(context).copyWith(
@@ -75,6 +176,12 @@ class CompoundDetailScreen extends StatelessWidget {
             // 5. Source Organisms
             if (hasKnowledge && data['source_organisms'] != null)
               _buildSourceCard(context),
+
+            const SizedBox(height: 16),
+
+            // 5.5. Habitat & Cultivation Matrix
+            if (hasKnowledge)
+              _buildCultivationMatrix(context, displayHerb),
 
             const SizedBox(height: 16),
 
@@ -746,6 +853,121 @@ class CompoundDetailScreen extends StatelessWidget {
             },
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildCultivationMatrix(BuildContext context, HerbItem herb) {
+    return Card(
+      elevation: 1,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE0E8DD)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.terrain_outlined, size: 20, color: Color(0xFF2E7D32)),
+                SizedBox(width: 8),
+                Text(
+                  'Habitat & Cultivation Matrix',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1B5E20)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMatrixColumn(
+                    icon: Icons.science_outlined,
+                    label: 'Soil pH Range',
+                    value: '${herb.soilPh} pH',
+                    color: const Color(0xFF00838F),
+                  ),
+                ),
+                Expanded(
+                  child: _buildMatrixColumn(
+                    icon: Icons.water_drop_outlined,
+                    label: 'Water Needs',
+                    value: herb.waterNeeds,
+                    color: const Color(0xFF1565C0),
+                  ),
+                ),
+                Expanded(
+                  child: _buildMatrixColumn(
+                    icon: Icons.wb_sunny_outlined,
+                    label: 'Sun Exposure',
+                    value: herb.sunExposure,
+                    color: const Color(0xFFFF8F00),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(color: Color(0xFFEEEEEE)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.thermostat_outlined, size: 16, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(
+                  'Temp: ${herb.tempRange}',
+                  style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                const Icon(Icons.hourglass_empty_rounded, size: 16, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(
+                  'Cycle: ${herb.harvestTime}',
+                  style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F8E9),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.map_outlined, color: Color(0xFF558B2F), size: 14),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      herb.geographicalRegion,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF33691E)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMatrixColumn({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFF1B5E20))),
       ],
     );
   }

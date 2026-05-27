@@ -62,6 +62,13 @@ def create_app() -> Flask:
     # Initialize JWT manager
     jwt = JWTManager(app)
 
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        from app.models.token_blocklist import TokenBlocklist
+        jti = jwt_payload["jti"]
+        token = TokenBlocklist.query.filter_by(jti=jti).first()
+        return token is not None
+
     # Initialize Sentry if DSN configured
     sentry_dsn = os.getenv("SENTRY_DSN")
     if sentry_dsn and sentry_sdk is not None:

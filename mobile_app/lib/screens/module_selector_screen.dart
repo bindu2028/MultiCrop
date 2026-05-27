@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-import 'dashboard_screen.dart';
 import '../module2/compound_screen.dart';
 import 'notifications_screen.dart';
+import 'dashboard_screen.dart';
 
 class ModuleSelectorScreen extends StatefulWidget {
   final String userName;
+  final String userEmail;
   final void Function([String? crop]) onScanRequested;
   final Future<void> Function() onLogout;
 
   const ModuleSelectorScreen({
     super.key,
     required this.userName,
+    required this.userEmail,
     required this.onScanRequested,
     required this.onLogout,
   });
@@ -75,26 +77,6 @@ class _ModuleSelectorScreenState extends State<ModuleSelectorScreen>
               );
             },
             icon: const Icon(Icons.notifications_none_rounded),
-          ),
-          PopupMenuButton<String>(
-            tooltip: 'Settings',
-            icon: const Icon(Icons.tune_rounded),
-            onSelected: (action) {
-              if (action == 'logout') {
-                widget.onLogout();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'about',
-                child: Text('About app'),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'logout',
-                child: Text('Logout'),
-              ),
-            ],
           ),
         ],
       ),
@@ -230,6 +212,9 @@ class _ModuleSelectorScreenState extends State<ModuleSelectorScreen>
                             builder: (_) => Scaffold(
                               appBar: AppBar(
                                 title: const Text('Plant Disease Detection'),
+                                elevation: 0,
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: const Color(0xFF1B5E20),
                               ),
                               body: DashboardScreen(
                                 userName: widget.userName,

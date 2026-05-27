@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,9 +69,9 @@ class AuthService {
       final map = jsonDecode(decodedString) as Map<String, dynamic>;
       if (map.containsKey('exp')) {
         final exp = map['exp'] as int;
-        final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+        final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
         // Expiry check with a 30-second clock skew buffer
-        return DateTime.now().isAfter(expiry.subtract(const Duration(seconds: 30)));
+        return DateTime.now().toUtc().isAfter(expiry.subtract(const Duration(seconds: 30)));
       }
     } catch (_) {
       return true;
@@ -208,7 +207,23 @@ class AuthService {
 
   /// Logout: clears all stored tokens and session data.
   Future<void> logout() async {
+    final activeToken = _inMemorySession?.accessToken;
     _inMemorySession = null;
+
+    if (activeToken != null) {
+      try {
+        await http.post(
+          Uri.parse('${_baseUrl()}/auth/logout'),
+          headers: {
+            'Authorization': 'Bearer $activeToken',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 4));
+      } catch (_) {
+        // Fail silently to guarantee client logout even if server is unreachable
+      }
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_nameKey);

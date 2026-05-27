@@ -7,19 +7,39 @@ import '../screens/app_shell.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
-class PlantLensApp extends StatelessWidget {
+import '../theme/theme_manager.dart';
+
+class PlantLensApp extends StatefulWidget {
   const PlantLensApp({super.key});
 
   @override
+  State<PlantLensApp> createState() => _PlantLensAppState();
+}
+
+class _PlantLensAppState extends State<PlantLensApp> {
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.instance.init();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PlantLens',
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      theme: AppTheme.light(),
-      home: const AuthGate(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeManager.instance.themeModeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'PlantLens',
+          debugShowCheckedModeBanner: false,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          themeMode: themeMode,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          home: const AuthGate(),
+        );
+      },
     );
   }
 }

@@ -71,9 +71,7 @@ class _ScanScreenState extends State<ScanScreen> {
       final requestedCrop = widget.initialCrop?.trim().toLowerCase();
       _selectedCrop = requestedCrop != null && crops.contains(requestedCrop)
           ? requestedCrop
-          : crops.isNotEmpty
-              ? crops.first
-              : null;
+          : null;
       _loadingCrops = false;
       if (!health) {
         _message = 'Backend offline. Start API server on port 5000.';
@@ -413,8 +411,8 @@ class _ScanScreenState extends State<ScanScreen> {
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                         child: DropdownButtonFormField<String>(
-                          initialValue: _selectedCrop,
-                          items: _crops
+                          value: _selectedCrop,
+                          items: (_selectedCrop == null ? _crops : [_selectedCrop!])
                               .map((crop) => DropdownMenuItem(
                                     value: crop,
                                     child: Row(
@@ -444,6 +442,16 @@ class _ScanScreenState extends State<ScanScreen> {
                               Icons.local_florist_outlined,
                               color: Color(0xFF81C784),
                             ),
+                            suffixIcon: _selectedCrop != null
+                                ? IconButton(
+                                    icon: const Icon(Icons.cancel_rounded, color: Colors.black38),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedCrop = null;
+                                      });
+                                    },
+                                  )
+                                : null,
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),

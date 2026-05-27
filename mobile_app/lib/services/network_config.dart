@@ -16,7 +16,12 @@ String resolveApiBaseUrl() {
     return _normalizeBaseUrl(apiUrl);
   }
 
-  // 2. Default: always use production Render URL (makes testing plug-and-play)
+  // 2. Local development fallback
+  if (kDebugMode) {
+    return 'http://localhost:5000';
+  }
+
+  // 3. Default: always use production Render URL (makes testing plug-and-play)
   return _kProductionUrl;
 }
 

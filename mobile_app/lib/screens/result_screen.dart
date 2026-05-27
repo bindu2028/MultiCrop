@@ -345,12 +345,13 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            if (!result.isUncertain) const SizedBox(height: 16),
 
             // Treatment Plan
-            FadeSlide(
-              delay: const Duration(milliseconds: 200),
-              child: Container(
+            if (!result.isUncertain)
+              FadeSlide(
+                delay: const Duration(milliseconds: 200),
+                child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: LinearGradient(
@@ -419,10 +420,10 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            if (!result.isUncertain && result.drugCompounds.isNotEmpty) const SizedBox(height: 16),
 
             // Drug Compounds
-            if (result.drugCompounds.isNotEmpty)
+            if (!result.isUncertain && result.drugCompounds.isNotEmpty)
               FadeSlide(
                 delay: const Duration(milliseconds: 300),
                 child: Container(
@@ -700,22 +701,23 @@ class _ResultScreenState extends State<ResultScreen> {
                 ),
               ),
 
-            SizedBox(height: 16),
-            FadeSlide(
-              delay: const Duration(milliseconds: 400),
-              child: _ModernActionButton(
-                icon: Icons.info_outline,
-                label: 'Learn More',
-                color: Color(0xFF42A5F5),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        DiseaseInfoScreen(diseaseName: result.disease),
+            if (!result.isUncertain) const SizedBox(height: 16),
+            if (!result.isUncertain)
+              FadeSlide(
+                delay: const Duration(milliseconds: 400),
+                child: _ModernActionButton(
+                  icon: Icons.info_outline,
+                  label: 'Learn More',
+                  color: Color(0xFF42A5F5),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          DiseaseInfoScreen(diseaseName: result.disease),
+                    ),
                   ),
                 ),
               ),
-            ),
 
             SizedBox(height: 12),
 

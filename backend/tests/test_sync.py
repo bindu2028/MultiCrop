@@ -169,3 +169,73 @@ def test_plant_tracker_sync(client):
     # 6. Fetch again and confirm empty
     response = client.get("/api/history/plants", headers=headers)
     assert len(response.get_json()) == 0
+
+
+def test_advanced_auth_lockout_and_blacklist(client):
+    # 1. Register a new test user for lockout and blacklist tests
+    username = "auth_test_user"
+    password = "secure_password123"
+    
+    resp = client.post(
+        "/auth/register",
+        data=json.dumps({"username": username, "password": password}),
+        content_type="application/json"
+    )
+    assert resp.status_code == 201
+    
+    # 2. Test failed attempts lockout policy
+    for i in range(1, 5):
+        resp = client.post(
+            "/auth/login",
+            data=json.dumps({"username": username, "password": "wrong_password"}),
+            content_type="application/json"
+        )
+        assert resp.status_code == 401
+        data = resp.get_json()
+        assert "remaining" in data["error"]
+        assert f"{5 - i} attempts" in data["error"]
+        
+    resp = client.post(
+        "/auth/login",
+        data=json.dumps({"username": username, "password": "wrong_password"}),
+        content_type="application/json"
+    )
+    assert resp.status_code == 403
+    assert "locked" in resp.get_json()["error"]
+
+    resp = client.post(
+        "/auth/login",
+        data=json.dumps({"username": username, "password": password}),
+        content_type="application/json"
+    )
+    assert resp.status_code == 403
+    assert "locked" in resp.get_json()["error"]
+    
+    # 3. Test token blacklist (logout) feature
+    user_blacklist = "blacklist_user"
+    resp = client.post(
+        "/auth/register",
+        data=json.dumps({"username": user_blacklist, "password": password}),
+        content_type="application/json"
+    )
+    assert resp.status_code == 201
+    
+    resp = client.post(
+        "/auth/login",
+        data=json.dumps({"username": user_blacklist, "password": password}),
+        content_type="application/json"
+    )
+    assert resp.status_code == 200
+    token = resp.get_json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    resp = client.get("/auth/me", headers=headers)
+    assert resp.status_code == 200
+    assert resp.get_json()["username"] == user_blacklist
+    
+    resp = client.post("/auth/logout", headers=headers)
+    assert resp.status_code == 200
+    assert "logged out" in resp.get_json()["message"]
+    
+    resp = client.get("/auth/me", headers=headers)
+    assert resp.status_code == 401
