@@ -100,18 +100,18 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          child: _view == _AuthView.landing
-              ? _LandingView(
-                  key: const ValueKey('landing'),
-                  onSignIn: _goToSignIn,
-                  onSignUp: _goToSignUp,
-                )
-              : _AuthFormView(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        child: _view == _AuthView.landing
+            ? _LandingView(
+                key: const ValueKey('landing'),
+                onSignIn: _goToSignIn,
+                onSignUp: _goToSignUp,
+              )
+            : SafeArea(
+                child: _AuthFormView(
                   key: ValueKey(_view.name),
                   isSignIn: _isSignIn,
                   loading: _loading,
@@ -123,7 +123,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   onSwitchMode: _isSignIn ? _goToSignUp : _goToSignIn,
                   onSubmit: _submit,
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -141,350 +141,198 @@ class _LandingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 980),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(36),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF020E0A), // Extra deep forest black
-                        Color(0xFF071F15), // Deep dark emerald
-                        Color(0xFF030D09), // Black forest
-                      ],
-                    ),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF020E0A).withValues(alpha: 0.6),
-                        blurRadius: 35,
-                        offset: const Offset(0, 18),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(36),
-                    child: Stack(
-                      children: [
-                        // Overlapping large glowing liquid circles
-                        Positioned(
-                          top: -80,
-                          right: -60,
-                          child: Container(
-                            width: 320,
-                            height: 320,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  const Color(0xFF52B788).withValues(alpha: 0.3),
-                                  const Color(0xFF52B788).withValues(alpha: 0.0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -60,
-                          left: -80,
-                          child: Container(
-                            width: 350,
-                            height: 350,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  const Color(0xFF1E6091).withValues(alpha: 0.22),
-                                  const Color(0xFF1E6091).withValues(alpha: 0.0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 220,
-                          right: -50,
-                          child: Container(
-                            width: 240,
-                            height: 240,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  const Color(0xFF74C69D).withValues(alpha: 0.2),
-                                  const Color(0xFF74C69D).withValues(alpha: 0.0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: -30,
-                          left: -30,
-                          child: Container(
-                            width: 180,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  const Color(0xFF40916C).withValues(alpha: 0.15),
-                                  const Color(0xFF40916C).withValues(alpha: 0.0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF020E0A), // Extra deep forest black
+            Color(0xFF071F15), // Deep dark emerald
+            Color(0xFF030D09), // Black forest
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Overlapping large glowing liquid circles
+          Positioned(
+            top: -80,
+            right: -60,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF52B788).withValues(alpha: 0.3),
+                    const Color(0xFF52B788).withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -60,
+            left: -80,
+            child: Container(
+              width: 350,
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF1E6091).withValues(alpha: 0.22),
+                    const Color(0xFF1E6091).withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 220,
+            right: -50,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF74C69D).withValues(alpha: 0.2),
+                    const Color(0xFF74C69D).withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -30,
+            left: -30,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF40916C).withValues(alpha: 0.15),
+                    const Color(0xFF40916C).withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
 
-                        // High-density blur filter over background orbs to blend into a seamless mesh glow
-                        Positioned.fill(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
-                            child: const SizedBox.shrink(),
-                          ),
-                        ),
+          // High-density blur filter over background orbs to blend into a seamless mesh glow
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
+              child: const SizedBox.shrink(),
+            ),
+          ),
 
-                        // Content (wrapped in a ScrollView to prevent overflow)
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: constraints.maxHeight,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+          // Content (wrapped in a ScrollView to prevent overflow, constrained for responsive design)
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                      Row(
                                         children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    padding: const EdgeInsets.all(10),
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      gradient: const LinearGradient(
-                                                        colors: [Color(0xFF52B788), Color(0xFF2D6A4F)],
-                                                        begin: Alignment.topLeft,
-                                                        end: Alignment.bottomRight,
-                                                      ),
-                                                      border: Border.all(
-                                                        color: Colors.white.withValues(alpha: 0.15),
-                                                        width: 1.2,
-                                                      ),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: const Color(0xFF52B788).withValues(alpha: 0.4),
-                                                          blurRadius: 12,
-                                                          offset: const Offset(0, 4),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: const Icon(Icons.eco_rounded, color: Colors.white, size: 18),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  const Text(
-                                                    'PlantLens',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.w900,
-                                                      fontSize: 22,
-                                                      letterSpacing: 0.5,
-                                                    ),
-                                                  ),
-                                                ],
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFF52B788), Color(0xFF2D6A4F)],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
                                               ),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white.withValues(alpha: 0.06),
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  border: Border.all(
-                                                    color: Colors.white.withValues(alpha: 0.12),
-                                                    width: 1.0,
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Container(
-                                                      width: 6,
-                                                      height: 6,
-                                                      decoration: const BoxDecoration(
-                                                        color: Color(0xFF52B788),
-                                                        shape: BoxShape.circle,
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Color(0xFF52B788),
-                                                            blurRadius: 6,
-                                                            spreadRadius: 2,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 6),
-                                                    const Text(
-                                                      'v2.0 Beta',
-                                                      style: TextStyle(
-                                                        color: Colors.white70,
-                                                        fontSize: 10.5,
-                                                        fontWeight: FontWeight.w700,
-                                                        letterSpacing: 0.3,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                              border: Border.all(
+                                                color: Colors.white.withValues(alpha: 0.15),
+                                                width: 1.2,
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 36),
-                                          RichText(
-                                            text: const TextSpan(
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 36,
-                                                fontWeight: FontWeight.w900,
-                                                height: 1.15,
-                                                letterSpacing: -0.5,
-                                              ),
-                                              children: [
-                                                TextSpan(text: 'Detect plant '),
-                                                TextSpan(
-                                                  text: 'diseases',
-                                                  style: TextStyle(
-                                                    color: Color(0xFF52B788),
-                                                    shadows: [
-                                                      Shadow(
-                                                        color: Color(0xFF52B788),
-                                                        blurRadius: 20,
-                                                      ),
-                                                    ],
-                                                  ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(0xFF52B788).withValues(alpha: 0.4),
+                                                  blurRadius: 12,
+                                                  offset: const Offset(0, 4),
                                                 ),
-                                                TextSpan(text: '\nbefore they spread.'),
                                               ],
                                             ),
+                                            child: const Icon(Icons.eco_rounded, color: Colors.white, size: 18),
                                           ),
-                                          const SizedBox(height: 16),
-                                          Text(
-                                            'Scan a leaf, get instant confidence-based diagnosis, and follow clear remedies in seconds.',
+                                          const SizedBox(width: 12),
+                                          const Text(
+                                            'PlantLens',
                                             style: TextStyle(
-                                              color: Colors.white.withValues(alpha: 0.75),
-                                              fontSize: 14.5,
-                                              height: 1.45,
-                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 22,
+                                              letterSpacing: 0.5,
                                             ),
-                                          ),
-                                          const SizedBox(height: 32),
-                                          const _FeaturePill(
-                                            icon: Icons.camera_alt_outlined,
-                                            title: 'Fast camera scan',
-                                            subtitle: 'Live image capture and upload',
-                                          ),
-                                          const SizedBox(height: 12),
-                                          const _FeaturePill(
-                                            icon: Icons.analytics_outlined,
-                                            title: 'Confidence scoring',
-                                            subtitle: 'Green, yellow, red clarity indicators',
-                                          ),
-                                          const SizedBox(height: 12),
-                                          const _FeaturePill(
-                                            icon: Icons.history_outlined,
-                                            title: 'Track your history',
-                                            subtitle: 'Review every past diagnosis quickly',
                                           ),
                                         ],
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 32),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.06),
+                                          borderRadius: BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: Colors.white.withValues(alpha: 0.12),
+                                            width: 1.0,
+                                          ),
+                                        ),
                                         child: Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Expanded(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: const LinearGradient(
-                                                    colors: [Color(0xFF52B788), Color(0xFF2D6A4F)],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
+                                            Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xFF52B788),
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Color(0xFF52B788),
+                                                    blurRadius: 6,
+                                                    spreadRadius: 2,
                                                   ),
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: const Color(0xFF52B788).withValues(alpha: 0.4),
-                                                      blurRadius: 16,
-                                                      offset: const Offset(0, 5),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor: Colors.transparent,
-                                                    shadowColor: Colors.transparent,
-                                                    foregroundColor: Colors.white,
-                                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                    ),
-                                                  ),
-                                                  onPressed: onSignIn,
-                                                  child: const Text(
-                                                    'Sign In',
-                                                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-                                                  ),
-                                                ),
+                                                ],
                                               ),
                                             ),
-                                            const SizedBox(width: 14),
-                                            Expanded(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Colors.white.withValues(alpha: 0.08),
-                                                      Colors.white.withValues(alpha: 0.02),
-                                                    ],
-                                                  ),
-                                                  border: Border.all(
-                                                    color: Colors.white.withValues(alpha: 0.15),
-                                                    width: 1.2,
-                                                  ),
-                                                ),
-                                                child: OutlinedButton(
-                                                  style: OutlinedButton.styleFrom(
-                                                    foregroundColor: Colors.white,
-                                                    side: BorderSide.none,
-                                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                    ),
-                                                  ),
-                                                  onPressed: onSignUp,
-                                                  child: const Text(
-                                                    'Create Account',
-                                                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                                                  ),
-                                                ),
+                                            const SizedBox(width: 6),
+                                            const Text(
+                                              'v2.0 Beta',
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 10.5,
+                                                fontWeight: FontWeight.w700,
+                                                letterSpacing: 0.3,
                                               ),
                                             ),
                                           ],
@@ -492,19 +340,150 @@ class _LandingView extends StatelessWidget {
                                       ),
                                     ],
                                   ),
+                                  const SizedBox(height: 36),
+                                  RichText(
+                                    text: const TextSpan(
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.w900,
+                                        height: 1.15,
+                                        letterSpacing: -0.5,
+                                      ),
+                                      children: [
+                                        TextSpan(text: 'Detect plant '),
+                                        TextSpan(
+                                          text: 'diseases',
+                                          style: TextStyle(
+                                            color: Color(0xFF52B788),
+                                            shadows: [
+                                              Shadow(
+                                                color: Color(0xFF52B788),
+                                                blurRadius: 20,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        TextSpan(text: '\nbefore they spread.'),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Scan a leaf, get instant confidence-based diagnosis, and follow clear remedies in seconds.',
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.75),
+                                      fontSize: 14.5,
+                                      height: 1.45,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  const _FeaturePill(
+                                    icon: Icons.camera_alt_outlined,
+                                    title: 'Fast camera scan',
+                                    subtitle: 'Live image capture and upload',
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const _FeaturePill(
+                                    icon: Icons.analytics_outlined,
+                                    title: 'Confidence scoring',
+                                    subtitle: 'Green, yellow, red clarity indicators',
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const _FeaturePill(
+                                    icon: Icons.history_outlined,
+                                    title: 'Track your history',
+                                    subtitle: 'Review every past diagnosis quickly',
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 32),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [Color(0xFF52B788), Color(0xFF2D6A4F)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(16),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFF52B788).withValues(alpha: 0.4),
+                                              blurRadius: 16,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.transparent,
+                                            shadowColor: Colors.transparent,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(vertical: 16),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                          ),
+                                          onPressed: onSignIn,
+                                          child: const Text(
+                                            'Sign In',
+                                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(16),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white.withValues(alpha: 0.08),
+                                              Colors.white.withValues(alpha: 0.02),
+                                            ],
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white.withValues(alpha: 0.15),
+                                            width: 1.2,
+                                          ),
+                                        ),
+                                        child: OutlinedButton(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            side: BorderSide.none,
+                                            padding: const EdgeInsets.symmetric(vertical: 16),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                          ),
+                                          onPressed: onSignUp,
+                                          child: const Text(
+                                            'Create Account',
+                                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
