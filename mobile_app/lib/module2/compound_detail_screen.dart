@@ -226,11 +226,11 @@ class CompoundDetailScreen extends StatelessWidget {
 
   Widget _buildHeaderCard(BuildContext context) {
     return Card(
-      color: const Color(0xFFF0F7F2),
+      color: const Color(0xFFF0F4F8),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFC8E6C9)),
+        side: const BorderSide(color: Color(0xFFD1E3F8)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -239,7 +239,7 @@ class CompoundDetailScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.science, color: Color(0xFF2E7D32)),
+                const Icon(Icons.science, color: Color(0xFF1976D2)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -247,7 +247,7 @@ class CompoundDetailScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1B5E20),
+                      color: Color(0xFF1565C0),
                     ),
                   ),
                 ),
@@ -261,8 +261,8 @@ class CompoundDetailScreen extends StatelessWidget {
                 if (data['source_type'] != null)
                   Chip(
                     label: Text(data['source_type'].toString().toUpperCase()),
-                    backgroundColor: const Color(0xFFE8F5E9),
-                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF2E7D32)),
+                    backgroundColor: const Color(0xFFE3F2FD),
+                    labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1976D2)),
                     side: BorderSide.none,
                   ),
                 if (data['bioactivity'] != null)
@@ -392,7 +392,7 @@ class CompoundDetailScreen extends StatelessWidget {
     return _buildSectionCard(
       title: 'Source Organisms',
       icon: Icons.eco_outlined,
-      backgroundColor: const Color(0xFFF1F8E9), // Light green tint
+      backgroundColor: const Color(0xFFE1F5FE), // Light green tint
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: sources
@@ -401,8 +401,8 @@ class CompoundDetailScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('• ', style: TextStyle(fontSize: 18, color: Color(0xFF388E3C), fontWeight: FontWeight.bold)),
-                      Expanded(child: Text(s.toString(), style: const TextStyle(fontSize: 14, color: Color(0xFF1B5E20)))),
+                      const Text('• ', style: TextStyle(fontSize: 18, color: Color(0xFF1976D2), fontWeight: FontWeight.bold)),
+                      Expanded(child: Text(s.toString(), style: const TextStyle(fontSize: 14, color: Color(0xFF1565C0)))),
                     ],
                   ),
                 ))
@@ -463,19 +463,19 @@ class CompoundDetailScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: const Color(0xFFE3F2FD),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFC8E6C9)),
+                  border: Border.all(color: const Color(0xFFBBDEFB)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline, size: 18, color: Color(0xFF2E7D32)),
+                    const Icon(Icons.info_outline, size: 18, color: Color(0xFF1976D2)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         rem['how_used'],
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF1B5E20), height: 1.4),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF1565C0), height: 1.4),
                       ),
                     ),
                   ],
@@ -565,7 +565,7 @@ class CompoundDetailScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Formatted Compound Summary copied to clipboard!'),
-        backgroundColor: Color(0xFF2E7D32),
+        backgroundColor: Color(0xFF1976D2),
       ),
     );
   }
@@ -635,7 +635,7 @@ class CompoundDetailScreen extends StatelessWidget {
       label: Text(label),
       backgroundColor: bgColor,
       labelStyle: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 12),
-      side: BorderSide(color: textColor.withOpacity(0.2)),
+      side: BorderSide(color: textColor.withValues(alpha: 0.2)),
       onPressed: () {
         Navigator.push(
           context,
@@ -681,7 +681,7 @@ class CompoundDetailScreen extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.copy, size: 20, color: Color(0xFF1B5E20)),
+            icon: const Icon(Icons.copy, size: 20, color: Color(0xFF1565C0)),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: smiles));
               ScaffoldMessenger.of(context).showSnackBar(
@@ -827,10 +827,10 @@ class CompoundDetailScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: const BoxDecoration(
-                              color: Color(0xFFE8F5E9),
+                              color: Color(0xFFE3F2FD),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.science, color: Color(0xFF2E7D32), size: 24),
+                            child: const Icon(Icons.science, color: Color(0xFF1976D2), size: 24),
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -838,7 +838,7 @@ class CompoundDetailScreen extends StatelessWidget {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold, 
                               fontSize: 13,
-                              color: Color(0xFF1B5E20)
+                              color: Color(0xFF1565C0)
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -863,7 +863,7 @@ class CompoundDetailScreen extends StatelessWidget {
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFE0E8DD)),
+        side: const BorderSide(color: Color(0xFFD1E3F8)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -872,11 +872,11 @@ class CompoundDetailScreen extends StatelessWidget {
           children: [
             const Row(
               children: [
-                Icon(Icons.terrain_outlined, size: 20, color: Color(0xFF2E7D32)),
+                Icon(Icons.terrain_outlined, size: 20, color: Color(0xFF1976D2)),
                 SizedBox(width: 8),
                 Text(
                   'Habitat & Cultivation Matrix',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1B5E20)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1565C0)),
                 ),
               ],
             ),
@@ -933,17 +933,17 @@ class CompoundDetailScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F8E9),
+                color: const Color(0xFFE1F5FE),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.map_outlined, color: Color(0xFF558B2F), size: 14),
+                  const Icon(Icons.map_outlined, color: Color(0xFF1565C0), size: 14),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       herb.geographicalRegion,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF33691E)),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)),
                     ),
                   ),
                 ],
@@ -967,7 +967,7 @@ class CompoundDetailScreen extends StatelessWidget {
         const SizedBox(height: 8),
         Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFF1B5E20))),
+        Text(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFF1565C0))),
       ],
     );
   }

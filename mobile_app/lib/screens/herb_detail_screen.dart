@@ -68,7 +68,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                 expandedHeight: 220,
                 pinned: true,
                 stretch: true,
-                backgroundColor: const Color(0xFF1B5E20),
+                backgroundColor: const Color(0xFF1565C0),
                 systemOverlayStyle: SystemUiOverlayStyle.light,
                 leading: IconButton(
                   icon: const CircleAvatar(
@@ -102,7 +102,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [Color(0xFF0F4D2D), Color(0xFF2E7D32)],
+                            colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
                           ),
                         ),
                       ),
@@ -158,7 +158,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(color: Color(0xFFE0E8DD)),
+                        side: const BorderSide(color: Color(0xFFD1E3F8)),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
@@ -167,14 +167,14 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                           children: [
                             const Row(
                               children: [
-                                Icon(Icons.eco_rounded, color: Color(0xFF2E7D32), size: 20),
+                                Icon(Icons.eco_rounded, color: Color(0xFF1976D2), size: 20),
                                 SizedBox(width: 8),
                                 Text(
                                   'Botanical Profile',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF1B5E20),
+                                    color: Color(0xFF1565C0),
                                   ),
                                 ),
                               ],
@@ -192,13 +192,13 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F8E9),
+                                color: const Color(0xFFE1F5FE),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFDCEDC8)),
+                                border: Border.all(color: const Color(0xFFBBDEFB)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.map_outlined, color: Color(0xFF558B2F), size: 18),
+                                  const Icon(Icons.map_outlined, color: Color(0xFF1976D2), size: 18),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
@@ -206,7 +206,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                                       style: const TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
-                                        color: Color(0xFF33691E),
+                                        color: Color(0xFF0D47A1),
                                       ),
                                     ),
                                   ),
@@ -226,7 +226,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF1565C0),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -256,12 +256,12 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                                   gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
-                                    colors: [Color(0xFF81C784), Color(0xFF4CAF50)],
+                                    colors: [Color(0xFF90CAF9), Color(0xFF2196F3)],
                                   ),
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
+                                      color: const Color(0xFF2196F3).withValues(alpha: 0.2),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     )
@@ -303,7 +303,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF1565C0),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -362,7 +362,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF1565C0),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -376,21 +376,21 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE0E8DD)),
+                          border: Border.all(color: const Color(0xFFD1E3F8)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.menu_book_rounded, color: Color(0xFF7CB342), size: 18),
+                                const Icon(Icons.menu_book_rounded, color: Color(0xFF1976D2), size: 18),
                                 const SizedBox(width: 8),
                                 Text(
                                   title,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 14.5,
-                                    color: Color(0xFF33691E),
+                                    color: Color(0xFF0D47A1),
                                   ),
                                 ),
                               ],
@@ -429,7 +429,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(color: Color(0xFF4CAF50)),
+                        CircularProgressIndicator(color: Color(0xFF2196F3)),
                         SizedBox(height: 16),
                         Text(
                           'Fetching PubChem data...',
@@ -458,7 +458,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0E8DD)),
+        border: Border.all(color: const Color(0xFFD1E3F8)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,7 +489,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1B5E20),
+              color: Color(0xFF1565C0),
             ),
           ),
         ],
@@ -509,7 +509,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0E8DD)),
+        border: Border.all(color: const Color(0xFFD1E3F8)),
       ),
       child: Row(
         children: [
@@ -537,7 +537,7 @@ class _HerbDetailScreenState extends State<HerbDetailScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1B5E20),
+                    color: Color(0xFF1565C0),
                   ),
                 ),
               ],

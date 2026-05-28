@@ -44,7 +44,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF4F7F3),
+      color: const Color(0xFFF0F4F8),
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         children: [
@@ -98,7 +98,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1B5E20),
+              color: Color(0xFF1565C0),
             ),
           ),
           const SizedBox(height: 8),
@@ -107,7 +107,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE0E8DD)),
+              border: Border.all(color: const Color(0xFFD1E3F8)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -139,7 +139,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1B5E20),
+              color: Color(0xFF1565C0),
             ),
           ),
           const SizedBox(height: 8),
@@ -148,7 +148,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE0E8DD)),
+              border: Border.all(color: const Color(0xFFD1E3F8)),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -183,7 +183,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
                   icon: const Icon(Icons.analytics_rounded),
                   label: const Text('Analyze Safety', style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
+                    backgroundColor: const Color(0xFF1976D2),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -229,12 +229,12 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
         duration: const Duration(milliseconds: 350),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFE8F5E9),
+          color: const Color(0xFFE3F2FD),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFA5D6A7), width: 1.5),
+          border: Border.all(color: const Color(0xFF90CAF9), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF81C784).withValues(alpha: 0.15),
+              color: const Color(0xFF2196F3).withValues(alpha: 0.15),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -248,7 +248,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF81C784),
+                    color: const Color(0xFF2196F3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.check_circle_outline, color: Colors.white, size: 24),
@@ -263,13 +263,13 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF1B5E20),
+                          color: Color(0xFF1565C0),
                         ),
                       ),
                       SizedBox(height: 2),
                       Text(
                         'Safe under dietary consumption',
-                        style: TextStyle(color: Color(0xFF33691E), fontSize: 11, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Color(0xFF0D47A1), fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -279,7 +279,7 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
             const SizedBox(height: 16),
             Text(
               'There are no standard clinical warnings recorded between $_selectedHerb and $_selectedMed in our current natural pharmacology database.',
-              style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF2E7D32)),
+              style: const TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF1976D2)),
             ),
             const SizedBox(height: 14),
             Container(
@@ -290,12 +290,12 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline, color: Color(0xFF33691E), size: 16),
+                  Icon(Icons.info_outline, color: Color(0xFF0D47A1), size: 16),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Dietary culinary consumption is safe. However, always exercise caution with high-dosage extracts.',
-                      style: TextStyle(color: Color(0xFF33691E), fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Color(0xFF0D47A1), fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -328,9 +328,9 @@ class _InteractionCheckerScreenState extends State<InteractionCheckerScreen> {
         icon = Icons.warning_amber_rounded;
         break;
       case InteractionSeverity.synergistic:
-        mainColor = const Color(0xFF66BB6A); // Green
-        lightColor = const Color(0xFFE8F5E9);
-        darkColor = const Color(0xFF1B5E20);
+        mainColor = const Color(0xFF42A5F5); // Blue
+        lightColor = const Color(0xFFE3F2FD);
+        darkColor = const Color(0xFF1565C0);
         icon = Icons.volunteer_activism_rounded;
         break;
     }

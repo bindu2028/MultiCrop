@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/notification_service.dart';
-import 'diary_list_screen.dart';
+import '../services/history_service.dart';
+import '../services/growth_diary_service.dart';
+import '../services/auth_service.dart';
+import 'growth_diary_screen.dart';
 import '../widgets/fade_slide.dart';
-import '../theme/theme_manager.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -33,14 +36,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   late String _displayName;
   late String _displayEmail;
-  String _phone = '+91 98765 43210';
-  String _address = 'Andhra Pradesh, India';
+  String _phone = '';
+  String _address = '';
 
   @override
   void initState() {
     super.initState();
     _displayName = widget.userName;
     _displayEmail = widget.userEmail;
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        setState(() {
+          _displayName = prefs.getString('auth_name') ?? widget.userName;
+          _displayEmail = prefs.getString('auth_email') ?? widget.userEmail;
+          _phone = prefs.getString('auth_phone') ?? '';
+          _address = prefs.getString('auth_address') ?? '';
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -71,13 +89,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   delay: const Duration(milliseconds: 80),
                   child: const _ProfileStatsRow(),
                 ),
-                const SizedBox(height: 22),
-
-                // 3. 🎨 VISUAL THEME SELECTOR CARD
-                FadeSlide(
-                  delay: const Duration(milliseconds: 140),
-                  child: const _ThemeSelectorCard(),
-                ),
                 const SizedBox(height: 18),
 
                 // 4. ⚙️ SETTINGS GROUPS (GLASSY CARDS)
@@ -99,8 +110,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.menu_book_rounded,
                             iconColor: const Color(0xFF43A047),
                             title: 'Crop Growth Diary',
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiaryListScreen()));
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const GrowthDiaryScreen()),
+                              );
+                              if (mounted) setState(() {});
                             },
                           ),
                         ],
@@ -212,12 +227,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
+    final newName = '${result.firstName} ${result.lastName}'.trim();
+
     setState(() {
-      _displayName = '${result.firstName} ${result.lastName}'.trim();
+      _displayName = newName;
       _displayEmail = result.email;
       _phone = result.phone;
       _address = result.address;
     });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_name', newName);
+      await prefs.setString('auth_email', result.email);
+      await prefs.setString('auth_phone', result.phone);
+      await prefs.setString('auth_address', result.address);
+    } catch (_) {}
 
     _showToast('Profile saved successfully');
   }
@@ -354,22 +379,147 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showResetPasswordDialog() async {
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
+    bool obscurePassword = true;
+    bool obscureConfirm = true;
+    bool isSaving = false;
+    String? localError;
+
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset password'),
-        content: const Text('A secure password reset link will be instantly sent to your email. Proceed?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showToast('Password reset link sent to $_displayEmail');
-            },
-            child: const Text('Send Link'),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Row(
+                children: [
+                  Icon(Icons.lock_reset_rounded, color: Color(0xFF1E88E5), size: 28),
+                  SizedBox(width: 10),
+                  Text('Change Password', style: TextStyle(fontWeight: FontWeight.w900)),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Update your login password in real-time. Password must be at least 6 characters.',
+                      style: TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passwordController,
+                      obscureText: obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'New Password',
+                        hintText: 'Enter new password',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () => setState(() => obscurePassword = !obscurePassword),
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: confirmController,
+                      obscureText: obscureConfirm,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        hintText: 'Re-enter new password',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(obscureConfirm ? Icons.visibility_off : Icons.visibility),
+                          onPressed: () => setState(() => obscureConfirm = !obscureConfirm),
+                        ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
+                        ),
+                      ),
+                    ),
+                    if (localError != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        localError!,
+                        style: const TextStyle(color: Color(0xFFC62828), fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSaving ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1976D2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: isSaving
+                      ? null
+                      : () async {
+                          final pass = passwordController.text.trim();
+                          final conf = confirmController.text.trim();
+
+                          if (pass.isEmpty) {
+                            setState(() => localError = 'Password cannot be empty.');
+                            return;
+                          }
+                          if (pass.length < 6) {
+                            setState(() => localError = 'Password must be at least 6 characters.');
+                            return;
+                          }
+                          if (pass != conf) {
+                            setState(() => localError = 'Passwords do not match.');
+                            return;
+                          }
+
+                          setState(() {
+                            isSaving = true;
+                            localError = null;
+                          });
+
+                          try {
+                            await AuthService().changePassword(newPassword: pass);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              _showToast('Password updated successfully in real-time!');
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              setState(() {
+                                isSaving = false;
+                                localError = e.toString().replaceAll('Exception:', '').trim();
+                              });
+                            }
+                          }
+                        },
+                  child: isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text('Save Password'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -561,41 +711,41 @@ class _ProfileStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatItem(
-            context: context,
-            icon: Icons.scanner_rounded,
-            color: isDark ? const Color(0xFF1E281F) : const Color(0xFFE8F5E9),
-            iconColor: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
-            value: '24',
-            label: 'Leaf Scans',
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatItem(
-            context: context,
-            icon: Icons.menu_book_rounded,
-            color: isDark ? const Color(0xFF2D2214) : const Color(0xFFFFF3E0),
-            iconColor: isDark ? const Color(0xFFFFB74D) : const Color(0xFFEF6C00),
-            value: '8',
-            label: 'Diary Logs',
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatItem(
-            context: context,
-            icon: Icons.wifi_rounded,
-            color: isDark ? const Color(0xFF132A2F) : const Color(0xFFE0F7FA),
-            iconColor: isDark ? const Color(0xFF4DD0E1) : const Color(0xFF00838F),
-            value: 'Online',
-            label: 'Sync Status',
-          ),
-        ),
-      ],
+    return FutureBuilder<List<dynamic>>(
+      future: Future.wait([
+        HistoryService().loadHistory(),
+        GrowthDiaryService().loadEntries(),
+      ]),
+      builder: (context, snapshot) {
+        final scans = (snapshot.data?[0] as List?)?.length ?? 0;
+        final diaryLogs = (snapshot.data?[1] as List?)?.length ?? 0;
+
+        return Row(
+          children: [
+            Expanded(
+              child: _buildStatItem(
+                context: context,
+                icon: Icons.scanner_rounded,
+                color: isDark ? const Color(0xFF1E281F) : const Color(0xFFE8F5E9),
+                iconColor: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
+                value: scans.toString(),
+                label: 'Leaf Scans',
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildStatItem(
+                context: context,
+                icon: Icons.menu_book_rounded,
+                color: isDark ? const Color(0xFF2D2214) : const Color(0xFFFFF3E0),
+                iconColor: isDark ? const Color(0xFFFFB74D) : const Color(0xFFEF6C00),
+                value: diaryLogs.toString(),
+                label: 'Diary Logs',
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -653,135 +803,7 @@ class _ProfileStatsRow extends StatelessWidget {
   }
 }
 
-// 🎨 3. DYNAMIC VISUAL THEME SELECTOR PILL CARD
-class _ThemeSelectorCard extends StatelessWidget {
-  const _ThemeSelectorCard();
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2320) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isDark ? const Color(0xFF2A312B) : const Color(0xFFECEFF1)),
-        boxShadow: const [
-          BoxShadow(color: Color(0x06000000), blurRadius: 10, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'App Theme Mode',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14.5,
-                    color: isDark ? Colors.white : const Color(0xFF253627),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Persistent style theme',
-                  style: TextStyle(
-                    color: isDark ? Colors.white54 : Colors.black45,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF151916) : const Color(0xFFF1F8E9),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Row(
-              children: [
-                _buildThemePill(
-                  context: context,
-                  label: 'Light',
-                  icon: Icons.wb_sunny_rounded,
-                  selected: !isDark,
-                  onTap: () => ThemeManager.instance.toggleTheme(false),
-                ),
-                const SizedBox(width: 4),
-                _buildThemePill(
-                  context: context,
-                  label: 'Dark',
-                  icon: Icons.dark_mode_rounded,
-                  selected: isDark,
-                  onTap: () => ThemeManager.instance.toggleTheme(true),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildThemePill({
-    required BuildContext context,
-    required String label,
-    required IconData icon,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final activeColor = isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32);
-    final inactiveColor = isDark ? const Color(0xFF81C784) : const Color(0xFF558B2F);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: activeColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 14,
-              color: selected
-                  ? (isDark ? const Color(0xFF121513) : Colors.white)
-                  : inactiveColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                color: selected
-                    ? (isDark ? const Color(0xFF121513) : Colors.white)
-                    : inactiveColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 // ⚙️ 4. GLASSY GROUPED MENU GROUP CONTAINER
 class _MenuGroup extends StatelessWidget {
@@ -947,27 +969,80 @@ class _EditProfilePageState extends State<_EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF121613) : const Color(0xFFF9FBF9),
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: isDark ? Colors.white : const Color(0xFF253627)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(
+            color: isDark ? Colors.white : const Color(0xFF253627),
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
+        ),
         actions: [
-          TextButton(onPressed: _save, child: const Text('Save')),
+          TextButton(
+            onPressed: _save,
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
+                fontWeight: FontWeight.w900,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Field(label: 'First name', controller: _firstNameController),
-            const SizedBox(height: 14),
-            _Field(label: 'Last name', controller: _lastNameController),
-            const SizedBox(height: 14),
-            _Field(label: 'Email Address', controller: _emailController),
-            const SizedBox(height: 14),
-            _Field(label: 'Phone number', controller: _phoneController),
-            const SizedBox(height: 14),
-            _Field(label: 'Geographical Address', controller: _addressController, maxLines: 2),
+            _Field(
+              label: 'First name',
+              controller: _firstNameController,
+              prefixIcon: Icons.person_outline_rounded,
+              hintText: 'Enter your first name',
+            ),
+            const SizedBox(height: 18),
+            _Field(
+              label: 'Last name',
+              controller: _lastNameController,
+              prefixIcon: Icons.person_outline_rounded,
+              hintText: 'Enter your last name',
+            ),
+            const SizedBox(height: 18),
+            _Field(
+              label: 'Email Address',
+              controller: _emailController,
+              prefixIcon: Icons.email_outlined,
+              hintText: 'Enter your email address',
+            ),
+            const SizedBox(height: 18),
+            _Field(
+              label: 'Phone number',
+              controller: _phoneController,
+              prefixIcon: Icons.phone_outlined,
+              hintText: 'Enter your phone number (e.g. +91 98765 43210)',
+            ),
+            const SizedBox(height: 18),
+            _Field(
+              label: 'Geographical Address',
+              controller: _addressController,
+              prefixIcon: Icons.location_on_outlined,
+              hintText: 'Enter geographical address',
+              maxLines: 2,
+            ),
           ],
         ),
       ),
@@ -991,23 +1066,73 @@ class _Field extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final int maxLines;
+  final IconData prefixIcon;
+  final String hintText;
 
-  const _Field({required this.label, required this.controller, this.maxLines = 1});
+  const _Field({
+    required this.label,
+    required this.controller,
+    required this.prefixIcon,
+    required this.hintText,
+    this.maxLines = 1,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF558B2F), fontWeight: FontWeight.w700),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? const Color(0xFF81C784) : const Color(0xFF558B2F),
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.2,
+            ),
+          ),
         ),
-        const SizedBox(height: 6),
         TextField(
           controller: controller,
           maxLines: maxLines,
-          decoration: const InputDecoration(isDense: true),
+          style: TextStyle(
+            color: isDark ? Colors.white : const Color(0xFF253627),
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: isDark ? Colors.white30 : Colors.black38,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            prefixIcon: Icon(
+              prefixIcon,
+              size: 20,
+              color: isDark ? const Color(0xFF81C784) : const Color(0xFF558B2F),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF1E2320) : Colors.white,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: isDark ? const Color(0xFF2A312B) : const Color(0xFFECEFF1),
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
+                width: 2,
+              ),
+            ),
+          ),
         ),
       ],
     );

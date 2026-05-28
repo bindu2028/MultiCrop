@@ -287,4 +287,37 @@ class AuthService {
       // Continue with in-memory session if persistence is unavailable
     }
   }
+
+  /// Real-time change password request: calls backend /auth/change-password.
+  Future<void> changePassword({required String newPassword}) async {
+    if (newPassword.trim().length < 6) {
+      throw Exception('Password must be at least 6 characters.');
+    }
+
+    final activeToken = await getValidAccessToken();
+    if (activeToken == null) {
+      throw Exception('You must be logged in to change your password.');
+    }
+
+    final response = await http.post(
+      Uri.parse('${_baseUrl()}/auth/change-password'),
+      headers: {
+        'Authorization': 'Bearer $activeToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'password': newPassword.trim()}),
+    );
+
+    Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {
+      throw Exception('Failed to connect to server.');
+    }
+
+    if (response.statusCode != 200) {
+      throw Exception((body['error'] ?? 'Failed to reset password.').toString());
+    }
+  }
 }
+

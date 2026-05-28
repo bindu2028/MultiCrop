@@ -207,9 +207,9 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F3),
+      backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B5E20),
+        backgroundColor: const Color(0xFF1565C0),
         systemOverlayStyle: SystemUiOverlayStyle.light,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -253,7 +253,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                 child: Card(
                   child: Padding(
                     padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+                    child: CircularProgressIndicator(color: Color(0xFF2196F3)),
                   ),
                 ),
               ),
@@ -276,7 +276,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF1B5E20),
+            color: Color(0xFF1565C0),
           ),
         ),
         const SizedBox(height: 6),
@@ -291,16 +291,16 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
           controller: _searchController,
           decoration: InputDecoration(
             hintText: 'e.g., Curcumin, Berberine, Caffeine...',
-            prefixIcon: const Icon(Icons.search, color: Color(0xFF2E7D32)),
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF1976D2)),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE0E8DD)),
+              borderSide: const BorderSide(color: Color(0xFFD1E3F8)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
             ),
           ),
           onSubmitted: _searchCompound,
@@ -311,7 +311,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
           width: double.infinity,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
+              backgroundColor: const Color(0xFF1976D2),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -365,8 +365,8 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
             return ActionChip(
               label: Text(c),
               backgroundColor: Colors.white,
-              labelStyle: const TextStyle(color: Color(0xFF2E7D32), fontWeight: FontWeight.bold),
-              side: const BorderSide(color: Color(0xFFDCEDC8)),
+              labelStyle: const TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold),
+              side: const BorderSide(color: Color(0xFFBBDEFB)),
               onPressed: () {
                 _searchController.text = c;
                 _searchCompound(c);
@@ -399,7 +399,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
           color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFFE0E8DD)),
+            side: const BorderSide(color: Color(0xFFD1E3F8)),
           ),
           child: InkWell(
             onTap: () {
@@ -419,7 +419,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: const Color(0xFFE8F5E9),
+                    backgroundColor: const Color(0xFFE3F2FD),
                     child: Text(herb.emoji, style: const TextStyle(fontSize: 24)),
                   ),
                   const Spacer(),
@@ -428,7 +428,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 15.5,
-                      color: Color(0xFF1B5E20),
+                      color: Color(0xFF1565C0),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -449,7 +449,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F8E9),
+                          color: const Color(0xFFE1F5FE),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -457,7 +457,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF33691E),
+                            color: Color(0xFF0D47A1),
                           ),
                         ),
                       );
@@ -488,11 +488,11 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
             children: [
               const Row(
                 children: [
-                  Icon(Icons.science, color: Color(0xFF2E7D32), size: 20),
+                  Icon(Icons.science, color: Color(0xFF1976D2), size: 20),
                   SizedBox(width: 8),
                   Text(
                     'Molecular Feature Filter',
-                    style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1B5E20)),
+                    style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1565C0)),
                   ),
                 ],
               ),
@@ -507,7 +507,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                     ChoiceChip(
                       label: const Text('All Classes'),
                       selected: _selectedClass == null,
-                      selectedColor: const Color(0xFF2E7D32),
+                      selectedColor: const Color(0xFF1976D2),
                       labelStyle: TextStyle(
                         color: _selectedClass == null ? Colors.white : Colors.black87,
                         fontWeight: FontWeight.bold,
@@ -527,7 +527,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                         child: ChoiceChip(
                           label: Text(cl),
                           selected: isSelected,
-                          selectedColor: const Color(0xFF2E7D32),
+                          selectedColor: const Color(0xFF1976D2),
                           labelStyle: TextStyle(
                             color: isSelected ? Colors.white : Colors.black87,
                             fontWeight: FontWeight.bold,
@@ -553,14 +553,14 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF4F7F3),
+                        color: const Color(0xFFF0F4F8),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedWeight,
                           hint: const Text('Mol Weight', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                          style: const TextStyle(color: Color(0xFF1B5E20), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(color: Color(0xFF1565C0), fontWeight: FontWeight.bold, fontSize: 13),
                           items: const [
                             DropdownMenuItem(value: 'Light', child: Text('Light (<200g)')),
                             DropdownMenuItem(value: 'Medium', child: Text('Medium (200-400g)')),
@@ -581,14 +581,14 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF4F7F3),
+                        color: const Color(0xFFF0F4F8),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: _selectedBio,
                           hint: const Text('Bioactivity', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                          style: const TextStyle(color: Color(0xFF1B5E20), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(color: Color(0xFF1565C0), fontWeight: FontWeight.bold, fontSize: 13),
                           items: _bioactivities.map((bio) {
                             return DropdownMenuItem(value: bio, child: Text(bio));
                           }).toList(),
@@ -634,7 +634,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
-                        side: const BorderSide(color: Color(0xFFE0E8DD)),
+                        side: const BorderSide(color: Color(0xFFD1E3F8)),
                       ),
                       child: InkWell(
                         onTap: () => _searchCompound(comp['name']),
@@ -647,10 +647,10 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                               Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9),
+                                  color: const Color(0xFFE3F2FD),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.science_outlined, color: Color(0xFF2E7D32), size: 16),
+                                child: const Icon(Icons.science_outlined, color: Color(0xFF1976D2), size: 16),
                               ),
                               const Spacer(),
                               Text(
@@ -658,7 +658,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 15,
-                                  color: Color(0xFF1B5E20),
+                                  color: Color(0xFF1565C0),
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -685,7 +685,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
                                   const Spacer(),
                                   Text(
                                     comp['bio'],
-                                    style: const TextStyle(fontSize: 9, color: Color(0xFF4CAF50), fontWeight: FontWeight.bold),
+                                    style: const TextStyle(fontSize: 9, color: Color(0xFF2196F3), fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -723,7 +723,7 @@ class _CompoundScreenState extends State<CompoundScreen> with SingleTickerProvid
             const SizedBox(height: 18),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
+                backgroundColor: const Color(0xFF1976D2),
                 foregroundColor: Colors.white,
               ),
               onPressed: _resetSimulation,
