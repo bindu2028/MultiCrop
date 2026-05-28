@@ -89,7 +89,7 @@ def predict():
 
         # ===== FIX 2: Unknown Crop Rejection =====
         # If the best confidence is extremely low, the crop is likely unsupported
-        UNKNOWN_CROP_THRESHOLD = 0.40
+        UNKNOWN_CROP_THRESHOLD = 0.30
         is_unsupported_crop = False
         if confidence < UNKNOWN_CROP_THRESHOLD and disease != "Healthy":
             is_unsupported_crop = True

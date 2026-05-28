@@ -38,7 +38,7 @@ class Config:
         PROJECT_ROOT / "model" / "saved_model" / "tomato_disease_cnn.h5",
     ]
     IMAGE_SIZE = 224
-    CONFIDENCE_THRESHOLD = 0.60
+    CONFIDENCE_THRESHOLD = 0.35
     ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10 MB max upload size
     SQLALCHEMY_ENGINE_OPTIONS = {
