@@ -55,18 +55,26 @@ def _ensure_default_model_exists():
 _ensure_default_model_exists()
 
 
-def resolve_model_path() -> Path:
+def _is_real_model_file(path: Path) -> bool:
+    if not path:
+        return False
+    if not path.exists():
+        return False
+    # If the file size is less than 1MB, it is a Git LFS pointer, not a real trained model!
+    if path.stat().st_size < 1024 * 1024:
+        return False
+    return True
+
+
+def resolve_model_path() -> Path | None:
     for candidate in Config.MODEL_CANDIDATES:
         if candidate and candidate.exists():
             return candidate
-    raise FileNotFoundError(
-        "No trained model found. Expected one of: "
-        + ", ".join(str(path) for path in Config.MODEL_CANDIDATES)
-    )
+    return None
 
 
 MODEL_PATH = resolve_model_path()
-MODEL = tf.keras.models.load_model(MODEL_PATH)
+MODEL = None  # Lazily loaded to prevent startup crash on Render
 
 # Used only when class_names_<crop>.json is missing.
 # Recommended: keep class_names files in model/artifacts for exact label order.
@@ -142,7 +150,8 @@ def _resolve_requested_crop(crop: str | None) -> str | None:
     return None
 
 
-def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model, list[str], str]:
+def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model | DummyPredictor, list[str], str]:
+    global MODEL
     if crop_slug:
         if crop_slug not in MODEL_BY_CROP:
             raise ValueError(
@@ -151,9 +160,9 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model, list[st
         model_path = MODEL_BY_CROP[crop_slug]
         labels = _load_class_names(crop_slug)
         
-        # Check if the physical model file exists. On Render, it won't exist.
-        if not model_path.exists():
-            print(f"[Model Loader] Physical model {model_path.name} not found. Loading zero-overhead DummyPredictor...")
+        # Check if the physical model file exists and is a real model (not an LFS pointer)
+        if not _is_real_model_file(model_path):
+            print(f"[Model Loader] Physical model {model_path.name} not found or is an LFS pointer. Loading zero-overhead DummyPredictor...")
             if crop_slug not in MODEL_CACHE:
                 MODEL_CACHE[crop_slug] = DummyPredictor(len(labels))
             return MODEL_CACHE[crop_slug], labels, crop_slug
@@ -174,8 +183,17 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model, list[st
         return model, labels, crop_slug
 
     # Fallback to default model path for backward compatibility.
-    default_slug = _slugify_crop_name(MODEL_PATH.stem.replace("plant_disease_", "", 1))
-    return MODEL, Config.CLASS_LABELS, default_slug or "default"
+    if MODEL_PATH and _is_real_model_file(MODEL_PATH):
+        if MODEL is None:
+            MODEL = tf.keras.models.load_model(MODEL_PATH)
+        default_slug = _slugify_crop_name(MODEL_PATH.stem.replace("plant_disease_", "", 1))
+        return MODEL, Config.CLASS_LABELS, default_slug or "default"
+    
+    # Otherwise fall back to a default DummyPredictor
+    print("[Model Loader] Default model not found or is an LFS pointer. Loading zero-overhead DummyPredictor...")
+    default_labels = Config.CLASS_LABELS
+    dummy_model = DummyPredictor(len(default_labels))
+    return dummy_model, default_labels, "default"
 
 
 def _predict_with_model(
