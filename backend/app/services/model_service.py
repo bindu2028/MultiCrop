@@ -185,9 +185,9 @@ def _predict_with_model(
 ) -> tuple[str, float, dict[str, float], str | None, bool]:
     # Use model predictions but apply Temperature Scaling (T) to soften results.
     # T > 1.0 flattens the distribution (prevents 100% arrogance).
-    TEMPERATURE = 2.5
+    TEMPERATURE = 1.15
     # EPSILON adds a "uncertainty floor" so scores are forced away from 100%.
-    EPSILON = 0.08
+    EPSILON = 0.015
     
     # Get raw predictions (probabilities)
     predictions = model.predict(image_array, verbose=0)

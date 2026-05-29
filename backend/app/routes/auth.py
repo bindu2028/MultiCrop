@@ -103,3 +103,24 @@ def refresh():
 def me():
     identity = get_jwt_identity()
     return jsonify({"username": identity}), 200
+
+
+@auth_bp.post("/change-password")
+@jwt_required()
+def change_password():
+    data = request.get_json() or {}
+    new_password = data.get("password")
+    if not new_password:
+        return jsonify({"error": "Missing new password"}), 400
+    if len(new_password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    username = get_jwt_identity()
+    user = get_user_by_username(username)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    user.set_password(new_password)
+    db.session.commit()
+    return jsonify({"message": "Password changed successfully"}), 200
+

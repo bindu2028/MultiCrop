@@ -2,7 +2,9 @@ dataset/
 *.jpg
 *.png
 *.jpeg
+# Ignore generic h5 files but allow the trained production models to be committed via Git LFS
 *.h5
+!model/saved_model/*.h5
 *.pt
 *.pth
 __pycache__/
