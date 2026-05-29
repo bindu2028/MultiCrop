@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
@@ -41,11 +42,63 @@ class _ScanScreenState extends State<ScanScreen> {
   bool _loadingCrops = true;
   bool _predicting = false;
   String _message = 'Pick a crop and choose an image.';
+  
+  Timer? _healthTimer;
+  bool _checkingHealth = false;
 
   @override
   void initState() {
     super.initState();
     _loadInitialState();
+    _startHealthMonitoring();
+  }
+
+  @override
+  void dispose() {
+    _healthTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startHealthMonitoring() {
+    _healthTimer?.cancel();
+    _healthTimer = Timer.periodic(const Duration(seconds: 12), (timer) async {
+      if (!mounted || _predicting || _checkingHealth) return;
+      final health = await _api.checkHealth();
+      if (!mounted) return;
+      if (health != _apiHealthy) {
+        setState(() {
+          _apiHealthy = health;
+          if (health) {
+            _message = _imageBytes == null
+                ? 'Pick a crop and choose an image.'
+                : 'Image selected. Tap Analyze to get diagnosis.';
+          } else {
+            _message = 'Backend offline. Waking up server...';
+          }
+        });
+      }
+    });
+  }
+
+  Future<void> _checkHealthManual() async {
+    if (_checkingHealth) return;
+    setState(() {
+      _checkingHealth = true;
+      _message = 'Checking backend connection...';
+    });
+    final health = await _api.checkHealth();
+    if (!mounted) return;
+    setState(() {
+      _apiHealthy = health;
+      _checkingHealth = false;
+      if (health) {
+        _message = _imageBytes == null
+            ? 'Pick a crop and choose an image.'
+            : 'Image selected. Tap Analyze to get diagnosis.';
+      } else {
+        _message = 'Backend offline. Waking up server...';
+      }
+    });
   }
 
   Future<void> _loadInitialState() async {
@@ -330,44 +383,60 @@ class _ScanScreenState extends State<ScanScreen> {
               children: [
                 // API Health Status Bar (Only shown if offline/error)
                 if (!_apiHealthy)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 14),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFEF9A9A),
-                          Color(0xFFE57373),
+                  GestureDetector(
+                    onTap: _checkHealthManual,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: _checkingHealth
+                              ? [const Color(0xFF90A4AE), const Color(0xFF78909C)]
+                              : [const Color(0xFFEF9A9A), const Color(0xFFE57373)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: (_checkingHealth
+                                    ? const Color(0xFF90A4AE)
+                                    : const Color(0xFFEF9A9A))
+                                .withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFEF9A9A).withValues(alpha: 0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.cloud_off,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '✗ Backend Offline',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        child: Row(
+                          children: [
+                            _checkingHealth
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.cloud_off,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _checkingHealth
+                                    ? 'Checking connection...'
+                                    : '✗ Backend Offline (Tap to Retry)',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

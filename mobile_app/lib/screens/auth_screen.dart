@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/auth_session.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 
 enum _AuthView { landing, signIn, signUp }
 
@@ -20,6 +21,12 @@ class _AuthScreenState extends State<AuthScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService().checkHealth(); // Trigger asynchronous non-blocking cold-start wake up
+  }
 
   _AuthView _view = _AuthView.landing;
   bool _loading = false;

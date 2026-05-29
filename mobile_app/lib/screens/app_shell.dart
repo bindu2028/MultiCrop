@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'module_selector_screen.dart';
 import 'scan_screen.dart';
+import '../services/api_service.dart';
 
 import 'profile_screen.dart';
 
@@ -23,6 +24,12 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService().checkHealth(); // Trigger asynchronous non-blocking cold-start wake up
+  }
 
   void _openScanScreen([String? crop]) {
     Navigator.of(context).push(
