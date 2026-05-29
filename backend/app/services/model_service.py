@@ -32,6 +32,9 @@ def _ensure_single_model_exists(filename: str, num_classes: int) -> Path:
     model_dir = Config.PROJECT_ROOT / "model" / "saved_model"
     model_dir.mkdir(parents=True, exist_ok=True)
     path = model_dir / filename
+    import os
+    if os.getenv("RENDER"):
+        return path
     if not path.exists():
         print(f"[Model Init] Dynamically generating dummy model: {filename} ({num_classes} classes)...")
         try:
