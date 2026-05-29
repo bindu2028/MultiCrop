@@ -3,7 +3,6 @@ import json
 import re
 
 import numpy as np
-import tensorflow as tf
 
 from app.config import Config
 
@@ -36,6 +35,7 @@ def _ensure_single_model_exists(filename: str, num_classes: int) -> Path:
     if not path.exists():
         print(f"[Model Init] Dynamically generating dummy model: {filename} ({num_classes} classes)...")
         try:
+            import tensorflow as tf
             m = tf.keras.Sequential([
                 tf.keras.layers.Input(shape=(Config.IMAGE_SIZE, Config.IMAGE_SIZE, 3)),
                 tf.keras.layers.Flatten(),
@@ -134,7 +134,7 @@ def _load_class_names(crop_slug: str) -> list[str]:
 
 
 MODEL_BY_CROP: dict[str, Path] = _discover_models()
-MODEL_CACHE: dict[str, tf.keras.Model] = {}
+MODEL_CACHE: dict[str, object] = {}
 
 
 def available_crops() -> list[str]:
@@ -150,7 +150,7 @@ def _resolve_requested_crop(crop: str | None) -> str | None:
     return None
 
 
-def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model | DummyPredictor, list[str], str]:
+def _load_model_for_crop(crop_slug: str | None) -> tuple[object, list[str], str]:
     global MODEL
     if crop_slug:
         if crop_slug not in MODEL_BY_CROP:
@@ -171,8 +171,10 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model | DummyP
         _ensure_single_model_exists(f"plant_disease_{crop_slug}.h5", len(labels))
         
         if crop_slug not in MODEL_CACHE:
+            import tensorflow as tf
             MODEL_CACHE[crop_slug] = tf.keras.models.load_model(model_path)
         model = MODEL_CACHE[crop_slug]
+        import tensorflow as tf
         model_class_count = int(model.output_shape[-1])
         if len(labels) != model_class_count:
             raise ValueError(
@@ -185,6 +187,7 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model | DummyP
     # Fallback to default model path for backward compatibility.
     if MODEL_PATH and _is_real_model_file(MODEL_PATH):
         if MODEL is None:
+            import tensorflow as tf
             MODEL = tf.keras.models.load_model(MODEL_PATH)
         default_slug = _slugify_crop_name(MODEL_PATH.stem.replace("plant_disease_", "", 1))
         return MODEL, Config.CLASS_LABELS, default_slug or "default"
@@ -198,7 +201,7 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[tf.keras.Model | DummyP
 
 def _predict_with_model(
     image_array: np.ndarray,
-    model: tf.keras.Model,
+    model: object,
     labels: list[str],
 ) -> tuple[str, float, dict[str, float], str | None, bool]:
     # Use model predictions but apply Temperature Scaling (T) to soften results.
