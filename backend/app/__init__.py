@@ -95,27 +95,26 @@ def create_app() -> Flask:
         # Dynamic schema migration helper to add missing columns in production
         try:
             from sqlalchemy import inspect, text
-            inspector = inspect(db.engine)
-            if 'users' in inspector.get_table_names():
-                columns = [col['name'] for col in inspector.get_columns('users')]
-                
-                # Check for failed_login_attempts
-                if 'failed_login_attempts' not in columns:
-                    app.logger.info("Migrating DB: Adding failed_login_attempts column to users table...")
-                    if "postgresql" in app.config["SQLALCHEMY_DATABASE_URI"]:
-                        db.session.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0 NOT NULL"))
-                    else:
-                        db.session.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0"))
-                    db.session.commit()
-                
-                # Check for locked_until
-                if 'locked_until' not in columns:
-                    app.logger.info("Migrating DB: Adding locked_until column to users table...")
-                    if "postgresql" in app.config["SQLALCHEMY_DATABASE_URI"]:
-                        db.session.execute(text("ALTER TABLE users ADD COLUMN locked_until TIMESTAMP WITHOUT TIME ZONE"))
-                    else:
-                        db.session.execute(text("ALTER TABLE users ADD COLUMN locked_until DATETIME"))
-                    db.session.commit()
+            with db.engine.begin() as conn:
+                inspector = inspect(db.engine)
+                if 'users' in inspector.get_table_names():
+                    columns = [col['name'] for col in inspector.get_columns('users')]
+                    
+                    # Check for failed_login_attempts
+                    if 'failed_login_attempts' not in columns:
+                        app.logger.info("Migrating DB: Adding failed_login_attempts column to users table...")
+                        if "postgresql" in app.config.get("SQLALCHEMY_DATABASE_URI", ""):
+                            conn.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0 NOT NULL"))
+                        else:
+                            conn.execute(text("ALTER TABLE users ADD COLUMN failed_login_attempts INTEGER DEFAULT 0"))
+                    
+                    # Check for locked_until
+                    if 'locked_until' not in columns:
+                        app.logger.info("Migrating DB: Adding locked_until column to users table...")
+                        if "postgresql" in app.config.get("SQLALCHEMY_DATABASE_URI", ""):
+                            conn.execute(text("ALTER TABLE users ADD COLUMN locked_until TIMESTAMP WITHOUT TIME ZONE"))
+                        else:
+                            conn.execute(text("ALTER TABLE users ADD COLUMN locked_until DATETIME"))
         except Exception as e:
             app.logger.error(f"Failed to run dynamic DB schema migration: {e}")
 
