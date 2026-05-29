@@ -56,6 +56,11 @@ _ensure_default_model_exists()
 
 
 def _is_real_model_file(path: Path) -> bool:
+    # Always force DummyPredictor on Render to fit within 512MB RAM constraints
+    import os
+    if os.getenv("RENDER"):
+        return False
+
     if not path:
         return False
     if not path.exists():
