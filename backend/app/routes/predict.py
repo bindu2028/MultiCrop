@@ -80,7 +80,7 @@ def predict():
 
     try:
         image_array = preprocess_image_bytes(image_bytes)
-        disease, confidence, probabilities, selected_crop, alt_diagnosis, is_ambiguous = predict_image(image_array, crop=crop, image_bytes=image_bytes)
+        disease, confidence, probabilities, selected_crop, alt_diagnosis, is_ambiguous = predict_image(image_array, crop=crop)
         disease_explanation = get_disease_explanation(disease)
         remedy = get_remedy(disease)
         remedy_sections = get_remedy_sections(disease)

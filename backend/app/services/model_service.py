@@ -8,23 +8,70 @@ from app.config import Config
 
 
 class DummyPredictor:
-    def __init__(self, num_classes: int):
+    def __init__(self, num_classes: int, crop_slug: str = "default", labels: list[str] = None):
         self.num_classes = num_classes
+        self.crop_slug = crop_slug
+        self.labels = labels or []
         self.output_shape = (None, num_classes)
 
     def predict(self, image_array: np.ndarray, verbose: int = 0) -> np.ndarray:
-        # soft mock probability distribution
+        # Soft mock probability distribution initialized to zeros
         scores = np.zeros((1, self.num_classes))
-        # Let's assign 0.82 to class index 1 (usually disease for crops) if num_classes > 1, else 0
-        top_idx = 1 if self.num_classes > 1 else 0
-        scores[0, top_idx] = 0.82
-        if self.num_classes > 1:
-            remaining = 0.18 / (self.num_classes - 1)
-            for i in range(self.num_classes):
-                if i != top_idx:
-                    scores[0, i] = remaining
+        
+        # Smart real-time color/spot heuristic classification
+        try:
+            # Remove batch dimension if present
+            rgb = image_array[0] if len(image_array.shape) == 4 else image_array
+            r = rgb[:, :, 0]
+            g = rgb[:, :, 1]
+            b = rgb[:, :, 2]
+            
+            # Spots & lesions: necrotic brown or bright yellow halos
+            # High red/green, low blue, excluding healthy green leaves
+            lesion_mask = (
+                (r > 70) & (g > 50) & (r > b + 20) & (b < 140) &
+                ~((g > r + 5) & (g > 80))
+            )
+            lesion_ratio = float(np.mean(lesion_mask))
+            print(f"[DummyPredictor] Analyzing pixels for {self.crop_slug}... Lesion Ratio: {lesion_ratio:.4f}")
+            
+            # Trigger a disease state if lesion ratio exceeds 1.5%
+            is_diseased = lesion_ratio > 0.015
+        except Exception as e:
+            print(f"[DummyPredictor] Error in pixel analysis: {e}")
+            is_diseased = True  # Default to diseased for safety
+            
+        # Find indices of healthy vs diseased classes
+        healthy_idx = -1
+        disease_indices = []
+        for idx, label in enumerate(self.labels):
+            if "healthy" in label.lower():
+                healthy_idx = idx
+            else:
+                disease_indices.append(idx)
+                
+        if healthy_idx == -1 and self.num_classes > 0:
+            healthy_idx = 0
+            
+        # Distribute prediction probabilities dynamically
+        if is_diseased and disease_indices:
+            # Select the primary disease index
+            primary_idx = disease_indices[0]
+            scores[0, primary_idx] = 0.85
+            
+            # Distribute remaining 15% among other classes
+            remaining = 0.15 / (self.num_classes - 1) if self.num_classes > 1 else 0.0
+            for idx in range(self.num_classes):
+                if idx != primary_idx:
+                    scores[0, idx] = remaining
         else:
-            scores[0, 0] = 1.0
+            # Select the healthy index
+            scores[0, healthy_idx] = 0.85
+            remaining = 0.15 / (self.num_classes - 1) if self.num_classes > 1 else 0.0
+            for idx in range(self.num_classes):
+                if idx != healthy_idx:
+                    scores[0, idx] = remaining
+                    
         return scores
 
 
@@ -172,7 +219,7 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[object, list[str], str]
         if not _is_real_model_file(model_path):
             print(f"[Model Loader] Physical model {model_path.name} not found or is an LFS pointer. Loading zero-overhead DummyPredictor...")
             if crop_slug not in MODEL_CACHE:
-                MODEL_CACHE[crop_slug] = DummyPredictor(len(labels))
+                MODEL_CACHE[crop_slug] = DummyPredictor(len(labels), crop_slug=crop_slug, labels=labels)
             return MODEL_CACHE[crop_slug], labels, crop_slug
             
         # Lazily/dynamically ensure the crop model h5 file exists on disk
@@ -203,101 +250,8 @@ def _load_model_for_crop(crop_slug: str | None) -> tuple[object, list[str], str]
     # Otherwise fall back to a default DummyPredictor
     print("[Model Loader] Default model not found or is an LFS pointer. Loading zero-overhead DummyPredictor...")
     default_labels = Config.CLASS_LABELS
-    dummy_model = DummyPredictor(len(default_labels))
+    dummy_model = DummyPredictor(len(default_labels), crop_slug="default", labels=default_labels)
     return dummy_model, default_labels, "default"
-
-
-def _predict_with_gemini_vision(
-    image_bytes: bytes,
-    crop_slug: str,
-    labels: list[str],
-) -> tuple[str, float, dict[str, float], str | None, bool] | None:
-    # Safely load Gemini API key
-    from app.utils.image_utils import _get_gemini_key
-    api_key = _get_gemini_key()
-    if not api_key:
-        return None
-
-    try:
-        from google import genai
-        from google.genai import types as genai_types
-        from PIL import Image as PILImage
-        from io import BytesIO
-        import numpy as np
-
-        client = genai.Client(api_key=api_key)
-
-        pil_image = PILImage.open(BytesIO(image_bytes)).convert("RGB")
-        pil_image = pil_image.resize((512, 512))
-
-        labels_str = ", ".join([f"'{l}'" for l in labels])
-        prompt = (
-            f"You are an expert plant pathologist. Analyze this leaf image and classify the disease "
-            f"for the '{crop_slug}' crop.\n"
-            f"Choose exactly one label from this list: [{labels_str}].\n"
-            f"Answer ONLY with the exact label from the list."
-        )
-
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=[prompt, pil_image],
-            config=genai_types.GenerateContentConfig(
-                max_output_tokens=30,
-                temperature=0.0,
-            ),
-        )
-
-        predicted_label = response.text.strip()
-        # Find closest match in labels
-        matched_label = None
-        for label in labels:
-            if label.lower() in predicted_label.lower() or predicted_label.lower() in label.lower():
-                matched_label = label
-                break
-
-        if not matched_label:
-            # Fallback fuzzy substring matching
-            import re
-            cleaned_pred = re.sub(r'[^a-zA-Z0-9\s]', '', predicted_label.lower()).strip()
-            for label in labels:
-                cleaned_lbl = re.sub(r'[^a-zA-Z0-9\s]', '', label.lower()).strip()
-                if cleaned_lbl in cleaned_pred or cleaned_pred in cleaned_lbl:
-                    matched_label = label
-                    break
-
-        if not matched_label:
-            matched_label = labels[0] # ultimate fallback
-
-        # Construct a beautiful probability distribution where the matched class gets ~94%
-        # and other classes get remaining 6% divided equally
-        num_classes = len(labels)
-        scaled_scores = np.zeros(num_classes)
-        matched_idx = labels.index(matched_label)
-        
-        scaled_scores[matched_idx] = 0.94
-        if num_classes > 1:
-            remaining = 0.06 / (num_classes - 1)
-            for i in range(num_classes):
-                if i != matched_idx:
-                    scaled_scores[i] = remaining
-        else:
-            scaled_scores[0] = 1.0
-
-        confidence = float(scaled_scores[matched_idx])
-        probabilities = {
-            labels[idx]: float(score) for idx, score in enumerate(scaled_scores)
-        }
-
-        # Check if top-2 gap
-        alt_diagnosis = None
-        is_ambiguous = False
-
-        print(f"[Gemini Fallback Predictor] Classified '{crop_slug}' leaf as '{matched_label}' with confidence {confidence * 100:.2f}%")
-        return matched_label, confidence, probabilities, alt_diagnosis, is_ambiguous
-
-    except Exception as e:
-        print(f"[Gemini Fallback Predictor] Error: {e}")
-        return None
 
 
 def _predict_with_model(
@@ -364,7 +318,6 @@ def _predict_with_model(
 
 def predict_auto_crop(
     image_array: np.ndarray,
-    image_bytes: bytes | None = None,
 ) -> tuple[str, float, dict[str, float], str, str | None, bool]:
     crops = available_crops()
     if not crops:
@@ -373,16 +326,7 @@ def predict_auto_crop(
     best: tuple[str, float, dict[str, float], str, str | None, bool] | None = None
     for crop_slug in crops:
         model, labels, selected_crop = _load_model_for_crop(crop_slug)
-        
-        gemini_res = None
-        if isinstance(model, DummyPredictor) and image_bytes:
-            gemini_res = _predict_with_gemini_vision(image_bytes, selected_crop, labels)
-            
-        if gemini_res:
-            disease, confidence, probabilities, alt, ambiguous = gemini_res
-        else:
-            disease, confidence, probabilities, alt, ambiguous = _predict_with_model(image_array, model, labels)
-            
+        disease, confidence, probabilities, alt, ambiguous = _predict_with_model(image_array, model, labels)
         if best is None or confidence > best[1]:
             best = (disease, confidence, probabilities, selected_crop, alt, ambiguous)
 
@@ -394,19 +338,11 @@ def predict_auto_crop(
 def predict_image(
     image_array: np.ndarray,
     crop: str | None = None,
-    image_bytes: bytes | None = None,
 ) -> tuple[str, float, dict[str, float], str, str | None, bool]:
     if crop and _slugify_crop_name(crop) == "auto":
-        return predict_auto_crop(image_array, image_bytes=image_bytes)
+        return predict_auto_crop(image_array)
 
     crop_slug = _resolve_requested_crop(crop)
     model, labels, selected_crop = _load_model_for_crop(crop_slug)
-    
-    if isinstance(model, DummyPredictor) and image_bytes:
-        gemini_res = _predict_with_gemini_vision(image_bytes, selected_crop, labels)
-        if gemini_res:
-            disease, confidence, probabilities, alt, ambiguous = gemini_res
-            return disease, confidence, probabilities, selected_crop, alt, ambiguous
-
     disease, confidence, probabilities, alt, ambiguous = _predict_with_model(image_array, model, labels)
     return disease, confidence, probabilities, selected_crop, alt, ambiguous
